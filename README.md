@@ -10,3 +10,4 @@ Requires Neovim at least on https://github.com/neovim/neovim/commit/1b6442034f6a
 - right padding
 - test message kinds added in https://github.com/neovim/neovim/pull/31279
 - squash adjacent duplicates
+- display history messages (regardless of `:messages`)
