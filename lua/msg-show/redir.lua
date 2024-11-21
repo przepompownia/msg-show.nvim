@@ -27,7 +27,7 @@ local function handleUiMessages(event, kind, content, replace)
   --   debugMessage(dm)
   --   previous = dm
   -- end
-  if event ~= 'msg_show' then
+  if event ~= 'msg_show' or kind == 'search_cmd' then
     return
   end
 
