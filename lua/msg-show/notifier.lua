@@ -76,7 +76,7 @@ local function composeLines(items)
 end
 
 local function openMsgWin()
-  if msgWin then
+  if msgWin and api.nvim_win_is_valid(msgWin) then
     return
   end
 
