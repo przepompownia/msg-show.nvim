@@ -41,9 +41,9 @@ local hls = setmetatable({}, {
 --- @param item arctgx.message
 --- @param lines string[]
 --- @param highlights table
---- @return integer
+--- @return integer, integer
 local function composeSingleItem(item, lines, highlights, startLine)
-  local line, col, newCol, msg, hlname = startLine, 0, 0, nil, nil
+  local line, col, newCol, msg, hlname, maxwidth = startLine, 0, 0, nil, nil, 0
 
   for _, chunk in ipairs(item.msg) do
     hlname = hls[chunk[3]]
@@ -54,26 +54,32 @@ local function composeSingleItem(item, lines, highlights, startLine)
       end
       newCol = col + #msgpart
       lines[line + 1] = (lines[line + 1] or '') .. msgpart
+      if #lines[line + 1] > maxwidth then
+        maxwidth = #lines[line + 1]
+      end
       highlights[#highlights + 1] = {line, col, newCol, hlname}
       col = newCol
     end
   end
 
-  return line + 1
+  return line + 1, maxwidth
 end
 
 --- @param items arctgx.message[]
 local function composeLines(items)
-  local line, lines, highlights = 0, {}, {}
+  local line, lines, highlights, maxwidth, width = 0, {}, {}, 0, 0
 
   for _, item in pairs(items) do
-    line = composeSingleItem(item, lines, highlights, line)
+    line, width = composeSingleItem(item, lines, highlights, line)
+    if width > maxwidth then
+      maxwidth = width
+    end
   end
 
-  return lines, highlights
+  return lines, highlights, maxwidth
 end
 
-local function openMsgWin()
+local function openMsgWin(maxwidth)
   if msgWin and api.nvim_win_is_valid(msgWin) then
     return
   end
@@ -82,7 +88,7 @@ local function openMsgWin()
     relative = 'editor',
     row = vim.go.lines - 2,
     col = vim.o.columns,
-    width = 100,
+    width = maxwidth,
     height = 10,
     anchor = 'SE',
     style = 'minimal',
@@ -161,7 +167,7 @@ local defaultOpts = {notify = true, debug = true, duration = 5000}
 local realOpts
 
 local function loadItemsToBuf(items, buf)
-  local lines, highlights = composeLines(items)
+  local lines, highlights, maxwidth = composeLines(items)
 
   api.nvim_buf_clear_namespace(buf, ns, 0, -1)
   api.nvim_buf_set_lines(buf, 0, -1, true, lines)
@@ -170,13 +176,13 @@ local function loadItemsToBuf(items, buf)
     api.nvim_buf_set_extmark(buf, ns, highlight[1], highlight[2], extmarkOpts)
   end
 
-  return #lines
+  return #lines, maxwidth
 end
 
 --- @param items arctgx.message[]
 local function displayNotifications(items)
   local buf = msgBuf
-  local lineNr = loadItemsToBuf(items, buf)
+  local lineNr, maxwidth = loadItemsToBuf(items, buf)
   local height = (lineNr < vim.o.lines - 3) and lineNr or vim.o.lines - 3
 
   if height == 0 then
@@ -185,7 +191,7 @@ local function displayNotifications(items)
     return
   end
 
-  openMsgWin()
+  openMsgWin(maxwidth)
   api.nvim_win_set_config(msgWin, {
     height = (height == 0) and 1 or height
   })
