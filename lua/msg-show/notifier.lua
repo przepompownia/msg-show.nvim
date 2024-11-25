@@ -6,6 +6,8 @@ local extmarkOpts = {end_row = 0, end_col = 0, hl_group = 'Normal', hl_eol = tru
 local msgBuf
 local debugBuf
 local msgWin
+local historyWin
+local historyBuf
 local debugWin
 local msgId = 0
 
@@ -41,10 +43,6 @@ local hls = setmetatable({}, {
 --- @param highlights table
 --- @return integer
 local function composeSingleItem(item, lines, highlights, startLine)
-  if item.removed then
-    return startLine
-  end
-
   local line, col, newCol, msg, hlname = startLine, 0, 0, nil, nil
 
   for _, chunk in ipairs(item.msg) do
@@ -89,17 +87,39 @@ local function openMsgWin()
     anchor = 'SE',
     style = 'minimal',
     focusable = false,
+    zindex = 999,
   })
   vim.wo[msgWin].winblend = 25
 end
 
-local function closeMsgWin()
-  if not msgWin then
+local function openHistoryWin()
+  if historyWin and api.nvim_win_is_valid(historyWin) then
     return
   end
 
-  if api.nvim_win_is_valid(msgWin) then
-    api.nvim_win_close(msgWin, true)
+  historyWin = vim.api.nvim_open_win(historyBuf, true, {
+    relative = 'editor',
+    width = vim.go.columns,
+    height = math.floor(math.min(20, vim.go.lines / 2)),
+    anchor = 'SE',
+    row = vim.go.lines - 1,
+    col = 0,
+    border = 'single',
+    style = 'minimal',
+    title = 'Messages',
+    title_pos = 'center',
+    zindex = 998,
+  })
+  vim.wo[historyWin].winblend = 25
+end
+
+local function closeWin(winId)
+  if not winId then
+    return
+  end
+
+  if api.nvim_win_is_valid(winId) then
+    api.nvim_win_close(winId, true)
   end
 
   msgWin = nil
@@ -140,22 +160,28 @@ local defaultOpts = {notify = true, debug = true, duration = 5000}
 --- @class notifier.opts?
 local realOpts
 
---- @param items arctgx.message[]
-local function display(items)
-  api.nvim_buf_clear_namespace(msgBuf, ns, 0, -1)
-  api.nvim_buf_set_lines(msgBuf, 0, -1, true, {})
-
+local function loadItemsToBuf(items, buf)
   local lines, highlights = composeLines(items)
 
-  api.nvim_buf_set_lines(msgBuf, 0, -1, true, lines)
+  api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+  api.nvim_buf_set_lines(buf, 0, -1, true, lines)
   for _, highlight in ipairs(highlights) do
     extmarkOpts.end_row, extmarkOpts.end_col, extmarkOpts.hl_group = highlight[1], highlight[3], highlight[4]
-    api.nvim_buf_set_extmark(msgBuf, ns, highlight[1], highlight[2], extmarkOpts)
+    api.nvim_buf_set_extmark(buf, ns, highlight[1], highlight[2], extmarkOpts)
   end
-  local height = (#lines < vim.o.lines - 3) and #lines or vim.o.lines - 3
+
+  return #lines
+end
+
+--- @param items arctgx.message[]
+local function displayNotifications(items)
+  local buf = msgBuf
+  local lineNr = loadItemsToBuf(items, buf)
+  local height = (lineNr < vim.o.lines - 3) and lineNr or vim.o.lines - 3
 
   if height == 0 then
-    closeMsgWin()
+    closeWin(msgWin)
+    msgWin = nil
     return
   end
 
@@ -182,7 +208,7 @@ local function refresh()
     return a.created < b.created
   end)
   inFastEventWrapper(function ()
-    display(msglist)
+    displayNotifications(msglist)
   end)
 end
 
@@ -235,6 +261,13 @@ function M.updateUiMessage(id, chunkSequence, kind)
   return id
 end
 
+function M.showHistory()
+  inFastEventWrapper(function ()
+    loadItemsToBuf(msgHistory, historyBuf)
+    openHistoryWin()
+  end)
+end
+
 function M.remove(id)
   if msgHistory[id] then msgHistory[id].removed = true end
   msgsToDisplay[id] = nil
@@ -243,6 +276,23 @@ function M.remove(id)
 end
 
 local function displayDebugMessages(msg)
+  if not debugWin or not api.nvim_win_is_valid(debugWin) then
+    debugWin = api.nvim_open_win(debugBuf, false, {
+      relative = 'editor',
+      row = 0,
+      col = vim.o.columns,
+      width = 120,
+      height = 14,
+      anchor = 'NE',
+      border = 'rounded',
+      title_pos = 'center',
+      title = ' unhandled messages ',
+      hide = true,
+      style = 'minimal',
+    })
+    vim.wo[debugWin].winblend = 25
+    vim.wo[debugWin].number = true
+  end
   api.nvim_win_set_config(debugWin, {hide = false})
   api.nvim_buf_set_lines(debugBuf, -1, -1, true, vim.split(msg, '\n'))
 end
@@ -260,26 +310,13 @@ function M.setup(opts)
 
   if realOpts.debug then
     debugBuf = api.nvim_create_buf(false, true)
-    debugWin = api.nvim_open_win(debugBuf, false, {
-      relative = 'editor',
-      row = 0,
-      col = vim.o.columns,
-      width = 120,
-      height = 14,
-      anchor = 'NE',
-      border = 'rounded',
-      title_pos = 'center',
-      title = ' unhandled messages ',
-      hide = true,
-      style = 'minimal',
-    })
-    vim.wo[debugWin].winblend = 25
-    vim.wo[debugWin].number = true
   end
 
   if realOpts.notify then
     msgBuf = api.nvim_create_buf(false, true)
   end
+  historyBuf = api.nvim_create_buf(false, true)
+  -- vim.bo[historyBuf].modifiable = false
 
   local augroup = api.nvim_create_augroup('arctgx.msg', {clear = true})
   api.nvim_create_autocmd({'TabEnter', 'VimResized'}, {
@@ -288,7 +325,10 @@ function M.setup(opts)
   })
   api.nvim_create_autocmd({'TabLeave', 'TabClosed'}, {
     group = augroup,
-    callback = closeMsgWin,
+    callback = function ()
+      closeWin(msgWin)
+      msgWin = nil
+    end,
   })
 end
 
