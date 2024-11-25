@@ -230,7 +230,15 @@ function M.notify(msg, level)
   M.addUiMessage(chunkSequence, level)
 end
 
+local previous, previousId, previousDuplicated = nil, nil, 0
+
 function M.addUiMessage(chunkSequence, kind)
+  if previous == vim.json.encode(chunkSequence) then
+    previousDuplicated = previousDuplicated + 1
+    chunkSequence[#chunkSequence + 1] = {0, (' (x%d)'):format(previousDuplicated), 'Normal'}
+    M.updateUiMessage(previousId, chunkSequence, kind)
+    return
+  end
   --- @type arctgx.message
   local newItem = {type = 'ui', msg = chunkSequence, removed = false, priority = priorities[kind] or 0, created = vim.uv.hrtime()}
 
@@ -242,6 +250,8 @@ function M.addUiMessage(chunkSequence, kind)
   msgsToDisplay[id] = newItem
   refresh()
   deferRemoval(realOpts.duration, id)
+
+  previous, previousId, previousDuplicated = vim.json.encode(chunkSequence), id, 0
 
   return id
 end
@@ -271,6 +281,9 @@ end
 function M.remove(id)
   if msgHistory[id] then msgHistory[id].removed = true end
   msgsToDisplay[id] = nil
+  if previousId == id then
+    previous, previousId, previousDuplicated = nil, nil, 0
+  end
   destroyRemovalTimer(id)
   refresh()
 end
