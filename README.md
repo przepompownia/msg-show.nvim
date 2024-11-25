@@ -1,7 +1,12 @@
 # msg-show.nvim
-Requires Neovim at least on https://github.com/neovim/neovim/commit/1b6442034f6a821d357fe59cd75fdae47a7f7cff
+Render cmdline area output in the same way as from vim.notify (preserving colors). 
 
-## todo
+- Inspired in some way by https://github.com/echasnovski/mini.notify
+- still very experimental: for example some message kinds are still not handled correctly (inputlist does not work)
+
+Using this plugin requires Neovim at least on https://github.com/neovim/neovim/commit/1b6442034f6a821d357fe59cd75fdae47a7f7cff
+
+## Todo
 ### redirection
 - handle `:messages` and `:message clear`
 ### notifier
