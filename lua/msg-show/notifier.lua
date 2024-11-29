@@ -81,6 +81,7 @@ end
 
 local function openMsgWin(maxwidth)
   if msgWin and api.nvim_win_is_valid(msgWin) then
+    api.nvim_win_set_config(msgWin, {width = maxwidth})
     return
   end
 
