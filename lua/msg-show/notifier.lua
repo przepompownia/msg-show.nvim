@@ -29,24 +29,15 @@ local msgHistory = {}
 --- @type arctgx.message[]
 local msgsToDisplay = {}
 
-local hls = setmetatable({}, {
-  __index = function (t, id)
-    if type(id) == 'string' then
-      return id
-    end
-    return rawget(t, id) or (rawset(t, id, vim.fn.synIDattr(id, 'name')) and rawget(t, id))
-  end
-})
-
 --- @param item arctgx.message
 --- @param lines string[]
 --- @param highlights table
 --- @return integer, integer
 local function composeSingleItem(item, lines, highlights, startLine)
-  local line, col, newCol, msg, hlname, maxwidth = startLine, 0, 0, nil, nil, 0
+  local line, col, newCol, msg, hlId, maxwidth = startLine, 0, 0, nil, nil, 0
 
   for _, chunk in ipairs(item.msg) do
-    hlname = hls[chunk[3]]
+    hlId = chunk[3]
     msg = vim.split(chunk[2], '\n')
     for index, msgpart in ipairs(msg) do
       if index > 1 then
@@ -57,7 +48,7 @@ local function composeSingleItem(item, lines, highlights, startLine)
       if #lines[line + 1] > maxwidth then
         maxwidth = #lines[line + 1]
       end
-      highlights[#highlights + 1] = {line, col, newCol, hlname}
+      highlights[#highlights + 1] = {line, col, newCol, hlId}
       col = newCol
     end
   end
