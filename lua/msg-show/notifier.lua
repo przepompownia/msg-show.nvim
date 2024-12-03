@@ -13,11 +13,15 @@ local msgId = 0
 
 local priorities = { 1, 2, 3, 4, 5,
   search_count = 6,
+  progress = 7,
 }
 
 local uiKindHistoryExclude = {
   search_count = true,
+  progress = true,
 }
+
+local nvimBuiltinProgressHandler = vim.lsp.handlers['$/progress']
 
 local M = {}
 
@@ -223,12 +227,15 @@ local notifyLevelHl = {
   [logLEvels.ERROR] = 'ErrorMsg',
 }
 
-function M.notify(msg, level)
-  local chunkSequence = {{0, msg, notifyLevelHl[level] or 'Normal'}}
-  M.addUiMessage(chunkSequence, level)
+local function toChunk(msg, level)
+  return {{0, msg, notifyLevelHl[level] or 'Normal'}}
 end
 
-local previous, previousId, previousDuplicated = nil, nil, 0
+function M.notify(msg, level)
+  M.addUiMessage(toChunk(msg, level), level)
+end
+
+local previous, previousId, previousDuplicated = nil, nil, 1
 
 function M.addUiMessage(chunkSequence, kind)
   if previous == vim.json.encode(chunkSequence) then
@@ -249,7 +256,7 @@ function M.addUiMessage(chunkSequence, kind)
   refresh()
   deferRemoval(realOpts.duration, id)
 
-  previous, previousId, previousDuplicated = vim.json.encode(chunkSequence), id, 0
+  previous, previousId, previousDuplicated = vim.json.encode(chunkSequence), id, 1
 
   return id
 end
@@ -308,6 +315,36 @@ local function displayDebugMessages(msg)
   api.nvim_buf_set_lines(debugBuf, -1, -1, true, vim.split(msg, '\n'))
 end
 
+local prog = {}
+
+local function lspProgressHandler(err, result, ctx, config)
+  nvimBuiltinProgressHandler(err, result, ctx, config)
+
+  local clientId = ctx.client_id
+  local progId = ('%s-%s'):format(clientId, result.token)
+  local report = result.value
+
+  if nil ~= err then
+    return M.notify(vim.inspect(err), vim.log.levels.ERROR)
+  end
+
+  local progData = prog[progId] or {}
+
+  local msg = ('Client %s: %s [%s]'):format(clientId, report.message or '', report.percentage or '')
+  if nil == progData.notificationId then
+    progData.notificationId = M.addUiMessage(toChunk(msg, vim.log.levels.INFO), 'progress')
+  else
+    progData.notificationId = M.updateUiMessage(progData.notificationId, toChunk(msg, vim.log.levels.INFO), 'progress')
+  end
+
+  if report.kind == 'end' then
+    prog[progId] = nil
+    return
+  end
+
+  prog.progId = progData
+end
+
 function M.debug(msg)
   inFastEventWrapper(function ()
     displayDebugMessages(msg)
@@ -326,6 +363,12 @@ function M.setup(opts)
   if realOpts.notify then
     msgBuf = api.nvim_create_buf(false, true)
   end
+
+  if true then
+    --schedule?
+    vim.lsp.handlers['$/progress'] = lspProgressHandler
+  end
+
   historyBuf = api.nvim_create_buf(false, true)
   -- vim.bo[historyBuf].modifiable = false
 
