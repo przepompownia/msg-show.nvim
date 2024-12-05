@@ -286,9 +286,6 @@ end
 function M.remove(id)
   if msgHistory[id] then msgHistory[id].removed = true end
   msgsToDisplay[id] = nil
-  if previousId == id then
-    previous, previousId, previousDuplicated = nil, nil, 0
-  end
   destroyRemovalTimer(id)
   refresh()
 end
