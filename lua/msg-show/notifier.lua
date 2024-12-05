@@ -1,7 +1,8 @@
 local api = vim.api
 local ns = api.nvim_create_namespace('arctgx.message')
+local defaultHl = 'Comment'
 
-local extmarkOpts = {end_row = 0, end_col = 0, hl_group = 'Normal', hl_eol = true, hl_mode = 'combine'}
+local extmarkOpts = {end_row = 0, end_col = 0, hl_group = defaultHl, hl_eol = true, hl_mode = 'combine'}
 
 local msgBuf
 local debugBuf
@@ -42,6 +43,9 @@ local function composeSingleItem(item, lines, highlights, startLine)
 
   for _, chunk in ipairs(item.msg) do
     hlId = chunk[3]
+    if hlId == 0 then
+      hlId = defaultHl
+    end
     msg = vim.split(chunk[2], '\n')
     for index, msgpart in ipairs(msg) do
       if index > 1 then
@@ -221,14 +225,14 @@ end
 
 local logLEvels = vim.log.levels
 local notifyLevelHl = {
-  [logLEvels.DEBUG] = 'DebugMsg',
-  [logLEvels.INFO] = 'InfoMsg',
+  [logLEvels.DEBUG] = defaultHl,
+  [logLEvels.INFO] = defaultHl,
   [logLEvels.WARN] = 'WarningMsg',
   [logLEvels.ERROR] = 'ErrorMsg',
 }
 
 local function toChunk(msg, level)
-  return {{0, msg, notifyLevelHl[level] or 'Normal'}}
+  return {{0, msg, notifyLevelHl[level] or defaultHl}}
 end
 
 function M.notify(msg, level)
@@ -240,7 +244,7 @@ local previous, previousId, previousDuplicated = nil, nil, 1
 function M.addUiMessage(chunkSequence, kind)
   if previous == vim.json.encode(chunkSequence) then
     previousDuplicated = previousDuplicated + 1
-    chunkSequence[#chunkSequence + 1] = {0, (' (x%d)'):format(previousDuplicated), 'Normal'}
+    chunkSequence[#chunkSequence + 1] = {0, (' (x%d)'):format(previousDuplicated), defaultHl}
     M.updateUiMessage(previousId, chunkSequence, kind)
     return
   end
