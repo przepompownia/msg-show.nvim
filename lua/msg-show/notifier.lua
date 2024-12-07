@@ -43,9 +43,6 @@ local function composeSingleItem(item, lines, highlights, startLine)
 
   for _, chunk in ipairs(item.msg) do
     hlId = chunk[3]
-    if hlId == 0 then
-      hlId = defaultHl
-    end
     msg = vim.split(chunk[2], '\n')
     for index, msgpart in ipairs(msg) do
       if index > 1 then
@@ -96,6 +93,7 @@ local function openMsgWin(maxwidth)
     zindex = 999,
   })
   vim.wo[msgWin].winblend = 25
+  vim.wo[msgWin].winhl = 'Normal:' .. defaultHl
 end
 
 local function openHistoryWin()
