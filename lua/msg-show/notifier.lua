@@ -114,7 +114,7 @@ local function openHistoryWin()
     title_pos = 'center',
     zindex = 998,
   })
-  vim.wo[historyWin].winblend = 25
+  vim.wo[historyWin].winblend = 5
 end
 
 local function closeWin(winId)
