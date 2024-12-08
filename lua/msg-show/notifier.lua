@@ -341,7 +341,7 @@ local function lspProgressHandler(err, result, ctx, config)
     return
   end
 
-  prog.progId = progData
+  prog[progId] = progData
 end
 
 function M.debug(msg)
