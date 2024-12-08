@@ -329,7 +329,8 @@ local function lspProgressHandler(err, result, ctx, config)
 
   local progData = prog[progId] or {}
 
-  local msg = ('Client %s: %s [%s]'):format(clientId, report.message or '', report.percentage or '')
+  local percentage = report.percentage and (' [%s%%]'):format(report.percentage) or ''
+  local msg = ('Client %s: %s%s'):format(clientId, report.message or '', percentage)
   if nil == progData.notificationId then
     progData.notificationId = M.addUiMessage(toChunk(msg, vim.log.levels.INFO), 'progress')
   else
