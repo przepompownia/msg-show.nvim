@@ -83,7 +83,7 @@ local function openMsgWin(maxwidth)
 
   msgWin = api.nvim_open_win(msgBuf, false, {
     relative = 'editor',
-    row = vim.go.lines - 2,
+    row = vim.go.lines - 1,
     col = vim.o.columns,
     width = maxwidth,
     height = 10,
