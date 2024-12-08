@@ -320,6 +320,8 @@ local function lspProgressHandler(err, result, ctx, config)
   nvimBuiltinProgressHandler(err, result, ctx, config)
 
   local clientId = ctx.client_id
+  local client = assert(vim.lsp.get_clients({id = clientId})[1])
+
   local progId = ('%s-%s'):format(clientId, result.token)
   local report = result.value
 
@@ -330,7 +332,7 @@ local function lspProgressHandler(err, result, ctx, config)
   local progData = prog[progId] or {}
 
   local percentage = report.percentage and (' [%s%%]'):format(report.percentage) or ''
-  local msg = ('Client %s: %s%s'):format(clientId, report.message or '', percentage)
+  local msg = ('%s: %s%s'):format(client.name or clientId, report.message or '', percentage)
   if nil == progData.notificationId then
     progData.notificationId = M.addUiMessage(toChunk(msg, vim.log.levels.INFO), 'progress')
   else
