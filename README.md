@@ -12,7 +12,6 @@ Using this plugin requires Neovim at least on https://github.com/neovim/neovim/c
 ### notifier
 - allow pause/recreate deletion timers
 - test message kinds added in https://github.com/neovim/neovim/pull/31279
-- LSP progress handler
 - display title if provided in `vim.notify()`
 ### nvim
 - name kind on `:w` messages
