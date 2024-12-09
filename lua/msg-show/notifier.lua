@@ -316,6 +316,23 @@ end
 
 local prog = {}
 
+local function displayProgMsg(clientId, progId, report)
+  local client = assert(vim.lsp.get_clients({id = clientId})[1])
+
+  local progData = prog[progId] or {}
+  local isEnd = report.kind == 'end'
+
+  local percentage = report.percentage and (' [%s%%]'):format(report.percentage) or ''
+  local msg = ('%s: %s%s'):format(client.name or clientId, report.message or (isEnd and 'finished' or '-'), percentage)
+  if nil == progData.notificationId then
+    progData.notificationId = M.addUiMessage(toChunk(msg, vim.log.levels.INFO), 'progress')
+  else
+    progData.notificationId = M.updateUiMessage(progData.notificationId, toChunk(msg, vim.log.levels.INFO), 'progress')
+  end
+
+  return not isEnd and progData or nil
+end
+
 local function lspProgressHandler(err, result, ctx, config)
   nvimBuiltinProgressHandler(err, result, ctx, config)
 
@@ -323,28 +340,9 @@ local function lspProgressHandler(err, result, ctx, config)
     return M.notify(vim.inspect(err), vim.log.levels.ERROR)
   end
 
-  local clientId = ctx.client_id
-  local client = assert(vim.lsp.get_clients({id = clientId})[1])
+  local progId = ('%s-%s'):format(ctx.client_id, result.token)
 
-  local progId = ('%s-%s'):format(clientId, result.token)
-  local report = result.value
-
-  local progData = prog[progId] or {}
-
-  local percentage = report.percentage and (' [%s%%]'):format(report.percentage) or ''
-  local msg = ('%s: %s%s'):format(client.name or clientId, report.message or '', percentage)
-  if nil == progData.notificationId then
-    progData.notificationId = M.addUiMessage(toChunk(msg, vim.log.levels.INFO), 'progress')
-  else
-    progData.notificationId = M.updateUiMessage(progData.notificationId, toChunk(msg, vim.log.levels.INFO), 'progress')
-  end
-
-  if report.kind == 'end' then
-    prog[progId] = nil
-    return
-  end
-
-  prog[progId] = progData
+  prog[progId] = displayProgMsg(ctx.client_id, progId, result.value)
 end
 
 function M.debug(msg)
