@@ -18,8 +18,36 @@ local debugMessage = function (content)
   error('Not configured yet')
 end
 
+local function detach()
+  api.nvim__redraw({statusline = true})
+  -- api.nvim__redraw({flush = true})
+  vim.ui_detach(ns)
+  -- api.nvim__redraw({flush = true})
+  api.nvim__redraw({statusline = true})
+end
+
 local searchId = nil
+local writeId = nil
 local previous = ''
+
+local qMsgs = {}
+
+local function displayMessage(kind, content, replace)
+  if kind == 'search_count' then
+    searchId = (replace and searchId) and updateChMessage(searchId, content, kind) or addChMessage(content, kind)
+  elseif kind == 'bufwrite' then
+    writeId = (replace and writeId) and updateChMessage(writeId, content, kind) or addChMessage(content, kind)
+  else
+    addChMessage(content, kind)
+  end
+end
+
+local function consumeMsgs()
+  for _, qmsg in ipairs(qMsgs) do
+    displayMessage(qmsg[1], qmsg[2], qmsg[3])
+  end
+  qMsgs = {}
+end
 
 local function handleUiMessages(event, kind, content, replace)
   -- local dm = ('ev: %s, k: %s, r: %s, c: %s'):format(event, vim.inspect(kind), replace, vim.inspect(content))
@@ -33,20 +61,21 @@ local function handleUiMessages(event, kind, content, replace)
 
   if kind == 'return_prompt' then
     api.nvim_input('\r')
-  elseif kind == 'search_count' then
-    searchId = (replace and searchId) and updateChMessage(searchId, content, kind) or addChMessage(content, kind)
-    -- elseif
-    --   kind == 'emsg'
-    --   or kind == 'echo'
-    --   or kind == 'echoerr'
-    --   or kind == 'echomsg'
-    --   or kind == 'lua_error'
-    --   or kind == 'lua_print'
-    --   or kind == ''
-    -- then
-  else
-    addChMessage(content, kind)
+    return
   end
+
+  if not vim.in_fast_event() then
+    consumeMsgs()
+    displayMessage(kind, content, replace)
+    return
+  end
+
+  qMsgs[#qMsgs + 1] = {kind, content, replace}
+
+  vim.schedule(function ()
+    consumeMsgs()
+    api.nvim__redraw({flush = true})
+  end)
 end
 
 local M = {}
@@ -60,13 +89,6 @@ local function attach()
   vim.ui_attach(ns, {ext_messages = true, ext_cmdline = false}, handleUiMessages)
   -- vim.ui_attach(ns, {ext_messages = true, ext_cmdline = false}, vim.schedule_wrap(handleUiMessages))
   -- It causes waiting for <CR> input but debugging with osv works
-end
-
-local function detach()
-  vim.ui_detach(ns)
-  vim.schedule(function ()
-    api.nvim__redraw({statusline = true})
-  end)
 end
 
 api.nvim_create_user_command('MsgRedirToggle', function ()

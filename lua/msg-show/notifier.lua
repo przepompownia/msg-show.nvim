@@ -77,7 +77,12 @@ end
 
 local function openMsgWin(maxwidth)
   if msgWin and api.nvim_win_is_valid(msgWin) then
-    api.nvim_win_set_config(msgWin, {width = maxwidth})
+    api.nvim_win_set_config(msgWin, {
+      width = maxwidth,
+      -- relative = 'editor',
+      -- row = vim.go.lines - 1,
+      -- col = vim.o.columns,
+    })
     return
   end
 
@@ -191,7 +196,7 @@ local function displayNotifications(items)
 
   openMsgWin(maxwidth)
   api.nvim_win_set_config(msgWin, {
-    height = (height == 0) and 1 or height
+    height = (height == 0) and 1 or height,
   })
 end
 
