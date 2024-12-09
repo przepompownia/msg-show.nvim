@@ -84,6 +84,7 @@ local function attach()
   if not redirect then
     return
   end
+  api.nvim__redraw({flush = true})
   vim.ui_attach(ns, {ext_messages = true, ext_cmdline = false}, handleUiMessages)
   -- vim.ui_attach(ns, {ext_messages = true, ext_cmdline = false}, vim.schedule_wrap(handleUiMessages))
   -- It causes waiting for <CR> input but debugging with osv works
