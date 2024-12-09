@@ -319,15 +319,15 @@ local prog = {}
 local function lspProgressHandler(err, result, ctx, config)
   nvimBuiltinProgressHandler(err, result, ctx, config)
 
+  if nil ~= err then
+    return M.notify(vim.inspect(err), vim.log.levels.ERROR)
+  end
+
   local clientId = ctx.client_id
   local client = assert(vim.lsp.get_clients({id = clientId})[1])
 
   local progId = ('%s-%s'):format(clientId, result.token)
   local report = result.value
-
-  if nil ~= err then
-    return M.notify(vim.inspect(err), vim.log.levels.ERROR)
-  end
 
   local progData = prog[progId] or {}
 
