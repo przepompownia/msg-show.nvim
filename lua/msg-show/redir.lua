@@ -19,11 +19,9 @@ local debugMessage = function (content)
 end
 
 local function detach()
-  api.nvim__redraw({statusline = true})
-  -- api.nvim__redraw({flush = true})
+  api.nvim__redraw({flush = true})
   vim.ui_detach(ns)
-  -- api.nvim__redraw({flush = true})
-  api.nvim__redraw({statusline = true})
+  api.nvim__redraw({flush = true})
 end
 
 local searchId = nil
