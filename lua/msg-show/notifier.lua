@@ -356,7 +356,7 @@ function M.debug(msg)
   end)
 end
 
----@param opts notifier.opts
+---@param opts notifier.opts?
 function M.setup(opts)
   --- @type notifier.opts
   realOpts = vim.tbl_extend('keep', opts or {}, defaultOpts)
