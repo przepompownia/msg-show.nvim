@@ -22,6 +22,13 @@ local uiKindHistoryExclude = {
   progress = true,
 }
 
+local msgWinHlMap = {
+  Normal = defaultHl,
+  Search = defaultHl,
+}
+
+local msgWinHl = vim.iter(msgWinHlMap):map(function (k, v) return ('%s:%s'):format(k, v) end):join(',')
+
 local nvimBuiltinProgressHandler = vim.lsp.handlers['$/progress']
 
 local M = {}
@@ -98,7 +105,7 @@ local function openMsgWin(maxwidth)
     zindex = 999,
   })
   vim.wo[msgWin].winblend = 25
-  vim.wo[msgWin].winhl = 'Normal:' .. defaultHl
+  vim.wo[msgWin].winhl = msgWinHl
 end
 
 local function openHistoryWin()
