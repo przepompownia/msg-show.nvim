@@ -24,6 +24,7 @@ local function detach()
   api.nvim__redraw({flush = true})
 end
 
+local showDebugMsgs = false
 local searchId = nil
 local writeId = nil
 local previous = ''
@@ -48,11 +49,20 @@ local function consumeMsgs()
 end
 
 local function handleUiMessages(event, kind, content, replace)
-  -- local dm = ('ev: %s, k: %s, r: %s, c: %s'):format(event, vim.inspect(kind), replace, vim.inspect(content))
-  -- if dm ~= previous then
-  --   debugMessage(dm)
-  --   previous = dm
-  -- end
+  if showDebugMsgs then
+    local dm = ('e: %s, f: %s, k: %s, r: %s, c: %s'):format(
+      event,
+      vim.in_fast_event() and 1 or 0,
+      vim.inspect(kind),
+      replace,
+      vim.inspect(content)
+    )
+    if dm ~= previous then
+      debugMessage(dm)
+      previous = dm
+    end
+  end
+
   if event ~= 'msg_show' or kind == 'search_cmd' then
     return
   end
@@ -87,8 +97,6 @@ local function attach()
   api.nvim__redraw({flush = true})
   vim.ui_attach(ns, {ext_messages = true, ext_cmdline = false}, handleUiMessages)
   api.nvim__redraw({flush = true})
-  -- vim.ui_attach(ns, {ext_messages = true, ext_cmdline = false}, vim.schedule_wrap(handleUiMessages))
-  -- It causes waiting for <CR> input but debugging with osv works
 end
 
 api.nvim_create_user_command('MsgRedirToggle', function ()
@@ -96,6 +104,10 @@ api.nvim_create_user_command('MsgRedirToggle', function ()
   if not redirect then
     detach()
   end
+end, {nargs = 0})
+
+api.nvim_create_user_command('MsgRedirToggleDebugUIEvents', function ()
+  showDebugMsgs = not showDebugMsgs
 end, {nargs = 0})
 
 function M.init(addMsgCb, updateMsgCb, debugMsgCb)
