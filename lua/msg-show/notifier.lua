@@ -255,8 +255,7 @@ function M.addUiMessage(chunkSequence, kind)
   if previous == vim.json.encode(chunkSequence) then
     previousDuplicated = previousDuplicated + 1
     chunkSequence[#chunkSequence + 1] = {0, (' (x%d)'):format(previousDuplicated), defaultHl}
-    M.updateUiMessage(previousId, chunkSequence, kind)
-    return
+    return M.updateUiMessage(previousId, chunkSequence, kind)
   end
   --- @type arctgx.message
   local newItem = {type = 'ui', msg = chunkSequence, removed = false, priority = priorities[kind] or 0, created = vim.uv.hrtime()}
