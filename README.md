@@ -9,6 +9,7 @@ Using this plugin requires Neovim at least on https://github.com/neovim/neovim/c
 ## Todo
 ### redirection
 - handle `:messages` and `:message clear`
+- save messages displayed before `ui_attach`
 ### notifier
 - display `list_cmd` messages in a special way (no timer, position)
 - allow pause/recreate deletion timers
@@ -16,3 +17,4 @@ Using this plugin requires Neovim at least on https://github.com/neovim/neovim/c
 - display title if provided in `vim.notify()`
 ### nvim
 - tabs in `hi` not preserved
+- inputlist entered from telescope cmd history (maybe from feedkeys)
