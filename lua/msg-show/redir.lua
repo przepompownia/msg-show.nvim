@@ -25,20 +25,25 @@ local function detach()
 end
 
 local showDebugMsgs = false
-local searchId = nil
-local writeId = nil
 local previous = ''
+
+--- @type table<string, boolean|integer>
+local replaceableMsgIds = {
+  search_count = false,
+  bufwrite = false,
+  undo = false,
+}
 
 local qMsgs = {}
 
 local function displayMessage(kind, content, replace)
-  if kind == 'search_count' then
-    searchId = (replace and searchId) and updateChMessage(searchId, content, kind) or addChMessage(content, kind)
-  elseif kind == 'bufwrite' then
-    writeId = (replace and writeId) and updateChMessage(writeId, content, kind) or addChMessage(content, kind)
-  else
+  local msgId = replaceableMsgIds[kind]
+  if msgId == nil then
     addChMessage(content, kind)
+    return
   end
+
+  replaceableMsgIds[kind] = (replace and msgId) and updateChMessage(msgId, content, kind) or addChMessage(content, kind)
 end
 
 local function consumeMsgs()
