@@ -68,6 +68,12 @@ local function composeSingleItem(item, lines, highlights, startLine)
   return line + 1, maxwidth
 end
 
+local function jumpToLastLine(win)
+  vim._with({win = win}, function ()
+    vim.cmd.normal({args = {'G'}, mods = {silent = true}})
+  end)
+end
+
 --- @param items arctgx.message[]
 local function composeLines(items)
   local line, lines, highlights, maxwidth, width = 0, {}, {}, 0, 0
@@ -127,6 +133,7 @@ local function openHistoryWin()
     zindex = 998,
   })
   vim.wo[historyWin].winblend = 5
+  jumpToLastLine(historyWin)
 end
 
 local function closeWin(winId)
@@ -323,9 +330,7 @@ local function displayDebugMessages(msg)
   end
   api.nvim_win_set_config(debugWin, {hide = false})
   api.nvim_buf_set_lines(debugBuf, -1, -1, true, vim.split(msg, '\n'))
-  vim._with({win = debugWin}, function ()
-    vim.cmd.normal({args = {'G'}, mods = {silent = true}})
-  end)
+  jumpToLastLine(debugWin)
 end
 
 local prog = {}

@@ -18,3 +18,4 @@ Using this plugin requires Neovim at least on https://github.com/neovim/neovim/c
 ### nvim
 - tabs in `hi` not preserved
 - inputlist entered from telescope cmd history (maybe from feedkeys)
+- missing "undo" message kind
