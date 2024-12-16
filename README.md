@@ -4,7 +4,7 @@ Render cmdline area output in the same way as from vim.notify (preserving highli
 - Inspired in some way by https://github.com/echasnovski/mini.notify
 - still very experimental, for example `list_cmd` works with https://github.com/neovim/neovim/pull/31525
 
-Using this plugin requires Neovim at least on https://github.com/neovim/neovim/commit/442d338cb50e4cf08c58cb82b6d33b6d5df9fb1b
+Using this plugin requires Neovim at least on https://github.com/neovim/neovim/commit/798f928479
 
 ## Todo
 ### redirection
