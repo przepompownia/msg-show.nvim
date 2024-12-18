@@ -20,6 +20,7 @@ local priorities = { 1, 2, 3, 4, 5,
 local uiKindHistoryExclude = {
   search_count = true,
   progress = true,
+  undo = true,
 }
 
 local msgWinHlMap = {
