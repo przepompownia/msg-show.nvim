@@ -2,7 +2,7 @@
 Render cmdline area output in the same way as from vim.notify (preserving highlights). 
 
 - Inspired in some way by https://github.com/echasnovski/mini.notify
-- still very experimental, for example `list_cmd` works with https://github.com/neovim/neovim/pull/31525
+- still very experimental, for example `list_cmd` works with https://github.com/neovim/neovim/pull/8ef41f590224dfeea2e51d9fec150e363fd72ee0
 
 Using this plugin requires Neovim at least on https://github.com/neovim/neovim/commit/798f928479
 
@@ -16,5 +16,4 @@ Using this plugin requires Neovim at least on https://github.com/neovim/neovim/c
 - display title if provided in `vim.notify()`
 - lsp progress messages not always replaced
 ### nvim
-- tabs in `hi` not preserved
 - inputlist entered from telescope cmd history (maybe from feedkeys)
