@@ -1,5 +1,5 @@
 # msg-show.nvim
-Render cmdline area output in the same way as from vim.notify (preserving highlights). 
+Render UI messages out of the cmdline area (preserving highlights).
 
 - Inspired in some way by https://github.com/echasnovski/mini.notify
 - still very experimental, for example `list_cmd` works with https://github.com/neovim/neovim/pull/8ef41f590224dfeea2e51d9fec150e363fd72ee0
