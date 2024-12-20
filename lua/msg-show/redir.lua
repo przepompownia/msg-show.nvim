@@ -32,6 +32,7 @@ local replaceableMsgIds = {
   search_count = false,
   bufwrite = false,
   undo = false,
+  completion = false,
 }
 
 local qMsgs = {}
