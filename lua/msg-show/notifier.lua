@@ -253,10 +253,6 @@ local function toChunk(msg, level)
   return {{0, msg, notifyLevelHl[level] or defaultHl}}
 end
 
-function M.notify(msg, level)
-  M.addUiMessage(toChunk(msg, level), level)
-end
-
 local previous, previousId, previousDuplicated = nil, nil, 1
 
 function M.addUiMessage(chunkSequence, kind)

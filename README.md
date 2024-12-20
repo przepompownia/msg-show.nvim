@@ -13,7 +13,6 @@ Using this plugin requires Neovim at least on https://github.com/neovim/neovim/c
 - display `list_cmd` messages in a special way (no timer, position)
 - allow pause/recreate deletion timers
 - test message kinds added in https://github.com/neovim/neovim/pull/31279
-- display title if provided in `vim.notify()`
 - lsp progress messages not always replaced
 ### nvim
 - inputlist entered from telescope cmd history (maybe from feedkeys)
