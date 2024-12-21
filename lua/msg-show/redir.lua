@@ -35,8 +35,6 @@ local replaceableMsgIds = {
   completion = false,
 }
 
-local qMsgs = {}
-
 local function displayMessage(kind, content, replace)
   local msgId = replaceableMsgIds[kind]
   if msgId == nil then
@@ -45,13 +43,6 @@ local function displayMessage(kind, content, replace)
   end
 
   replaceableMsgIds[kind] = (replace and msgId) and updateChMessage(msgId, content, kind) or addChMessage(content, kind)
-end
-
-local function consumeMsgs()
-  for _, qmsg in ipairs(qMsgs) do
-    displayMessage(qmsg[1], qmsg[2], qmsg[3])
-  end
-  qMsgs = {}
 end
 
 local function handleUiMessages(event, kind, content, replace)
@@ -78,16 +69,8 @@ local function handleUiMessages(event, kind, content, replace)
     return
   end
 
-  if not vim.in_fast_event() then
-    consumeMsgs()
-    displayMessage(kind, content, replace)
-    return
-  end
-
-  qMsgs[#qMsgs + 1] = {kind, content, replace}
-
+  displayMessage(kind, content, replace)
   vim.schedule(function ()
-    consumeMsgs()
     api.nvim__redraw({flush = true})
   end)
 end
