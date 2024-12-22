@@ -43,7 +43,7 @@ local replaceableMsgIds = {
 
 local function displayMessage(kind, content, replace, history)
   local msgId = replaceableMsgIds[kind]
-  if not msgId then
+  if nil == msgId then
     addChMessage(content, kind, history)
     return
   end

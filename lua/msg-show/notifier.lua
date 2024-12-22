@@ -17,10 +17,9 @@ local priorities = { 1, 2, 3, 4, 5,
   progress = 7,
 }
 
-local uiKindHistoryExclude = {
-  search_count = true,
-  progress = true,
-  undo = true,
+local uiKindHistoryInclude = {
+  echo = true,
+  list_cmd = true,
 }
 
 local msgWinHlMap = {
@@ -255,7 +254,7 @@ end
 
 local previous, previousId, previousDuplicated = nil, nil, 1
 
-function M.addUiMessage(chunkSequence, kind)
+function M.addUiMessage(chunkSequence, kind, history)
   if previous == vim.json.encode(chunkSequence) then
     previousDuplicated = previousDuplicated + 1
     chunkSequence[#chunkSequence + 1] = {0, (' (x%d)'):format(previousDuplicated), defaultHl}
@@ -266,7 +265,7 @@ function M.addUiMessage(chunkSequence, kind)
 
   local id = newId()
 
-  if not uiKindHistoryExclude[kind] then
+  if uiKindHistoryInclude[kind] or history then
     msgHistory[id] = newItem
   end
   msgsToDisplay[id] = newItem
@@ -278,14 +277,14 @@ function M.addUiMessage(chunkSequence, kind)
   return id
 end
 
-function M.updateUiMessage(id, chunkSequence, kind)
+function M.updateUiMessage(id, chunkSequence, kind, history)
   if msgHistory[id] then
     msgHistory[id].msg = chunkSequence
   end
   if msgsToDisplay[id] then
     msgsToDisplay[id].msg = chunkSequence
   else
-    id = M.addUiMessage(chunkSequence, kind)
+    id = M.addUiMessage(chunkSequence, kind, history)
   end
   refresh()
   deferRemovalAgain(id)
