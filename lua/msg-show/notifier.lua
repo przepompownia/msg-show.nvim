@@ -179,7 +179,7 @@ local function deferRemovalAgain(id)
 end
 
 --- @class notifier.opts
-local defaultOpts = {notify = true, debug = true, duration = 5000}
+local defaultOpts = {notify = true, debug = true, lspProgress = true, duration = 5000}
 --- @class notifier.opts?
 local realOpts
 
@@ -379,8 +379,7 @@ function M.setup(opts)
     msgBuf = api.nvim_create_buf(false, true)
   end
 
-  if true then
-    --schedule?
+  if realOpts.lspProgress then
     vim.lsp.handlers['$/progress'] = lspProgressHandler
   end
 
