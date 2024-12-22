@@ -5,6 +5,7 @@ local ns = api.nvim_create_namespace('messageRedirection')
 --- @param title string?
 --- @param history boolean
 --- @return integer message ID
+---@diagnostic disable-next-line: unused-local
 local addChMessage = function (content, title, history)
   error('Not configured yet')
 end
@@ -13,10 +14,12 @@ end
 --- @param content [integer, string, integer][][]
 --- @param title string?
 --- @param history boolean
+---@diagnostic disable-next-line: unused-local
 local updateChMessage = function (msgId, content, title, history)
   error('Not configured yet')
 end
 
+---@diagnostic disable-next-line: unused-local
 local debugMessage = function (content)
   error('Not configured yet')
 end
