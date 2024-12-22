@@ -118,13 +118,15 @@ function M.init(addMsgCb, updateMsgCb, debugMsgCb)
 
   api.nvim_create_autocmd('CmdlineEnter', {callback = detach})
   api.nvim_create_autocmd({'CmdlineLeave'}, {callback = attach})
-  api.nvim_create_autocmd({'UIEnter'}, {callback = function ()
-    local startMessages = vim.trim(api.nvim_exec2('messages', {output = true}).output)
-    if #startMessages > 0 then
-      displayMessage('echo', {{0, startMessages, 0}})
+  api.nvim_create_autocmd({'UIEnter'}, {
+    callback = function ()
+      local startMessages = vim.trim(api.nvim_exec2('messages', {output = true}).output)
+      if #startMessages > 0 then
+        displayMessage('echo', {{0, startMessages, 0}})
+      end
+      attach()
     end
-    attach()
-  end})
+  })
 end
 
 return M
