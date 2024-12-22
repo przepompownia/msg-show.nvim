@@ -3,14 +3,17 @@ local ns = api.nvim_create_namespace('messageRedirection')
 
 --- @param content [integer, string, integer][][]
 --- @param title string?
+--- @param history boolean
 --- @return integer message ID
-local addChMessage = function (content, title)
+local addChMessage = function (content, title, history)
   error('Not configured yet')
 end
 
+--- @param msgId integer
 --- @param content [integer, string, integer][][]
 --- @param title string?
-local updateChMessage = function (msgId, content, title)
+--- @param history boolean
+local updateChMessage = function (msgId, content, title, history)
   error('Not configured yet')
 end
 
@@ -27,7 +30,7 @@ end
 local showDebugMsgs = false
 local previous = ''
 
---- @type table<string, boolean|integer>
+--- @type table<string, false|integer>
 local replaceableMsgIds = {
   search_count = false,
   bufwrite = false,
@@ -35,23 +38,26 @@ local replaceableMsgIds = {
   completion = false,
 }
 
-local function displayMessage(kind, content, replace)
+local function displayMessage(kind, content, replace, history)
   local msgId = replaceableMsgIds[kind]
-  if msgId == nil then
-    addChMessage(content, kind)
+  if not msgId then
+    addChMessage(content, kind, history)
     return
   end
 
-  replaceableMsgIds[kind] = (replace and msgId) and updateChMessage(msgId, content, kind) or addChMessage(content, kind)
+  replaceableMsgIds[kind] = (replace and msgId)
+    and updateChMessage(msgId, content, kind, history)
+    or addChMessage(content, kind, history)
 end
 
-local function handleUiMessages(event, kind, content, replace)
+local function handleUiMessages(event, kind, content, replace, history)
   if showDebugMsgs then
-    local dm = ('e: %s, f: %s, k: %s, r: %s, c: %s'):format(
+    local dm = ('e: %s, f: %s, k: %s, r: %s, h: %s, c: %s'):format(
       event,
       vim.in_fast_event() and 1 or 0,
       vim.inspect(kind),
       replace,
+      history,
       vim.inspect(content)
     )
     if dm ~= previous then
