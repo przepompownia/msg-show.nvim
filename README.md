@@ -18,6 +18,7 @@ vim.keymap.set('n', '<Leader>nh', notifier.showHistory)
 ## Todo
 ### redirection
 - handle `:messages` and `:message clear`
+- verify which `nvim__redraw` calls with current options can be redundant
 ### notifier
 - display `list_cmd` messages in a special way (no timer, position)
 - allow pause/recreate deletion timers
