@@ -23,6 +23,7 @@ vim.keymap.set('n', '<Leader>nh', notifier.showHistory)
 - display `list_cmd` messages in a special way (no timer, position)
 - allow pause/recreate deletion timers
 - test message kinds added in https://github.com/neovim/neovim/pull/31279
-- lsp progress messages not always replaced
+- verify if lsp progress messages not always replaced
+- wrap lines longer than max
 ### nvim
 - inputlist entered from telescope cmd history (maybe from feedkeys)
