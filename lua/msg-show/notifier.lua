@@ -19,6 +19,7 @@ local priorities = { 1, 2, 3, 4, 5,
 
 local uiKindHistoryInclude = {
   echo = true,
+  echomsg = true,
   list_cmd = true,
   lua_print = true,
 }
@@ -89,10 +90,15 @@ local function composeLines(items)
   return lines, highlights, maxwidth
 end
 
-local function openMsgWin(maxwidth)
+local function openMsgWin(maxLinesWidth)
+  local winMaxWidth = 60
+  local width = maxLinesWidth
+  if width > winMaxWidth then
+    width = winMaxWidth
+  end
   if msgWin and api.nvim_win_is_valid(msgWin) then
     api.nvim_win_set_config(msgWin, {
-      width = maxwidth,
+      width = width,
       -- relative = 'editor',
       -- row = vim.go.lines - 1,
       -- col = vim.o.columns,
@@ -104,7 +110,7 @@ local function openMsgWin(maxwidth)
     relative = 'editor',
     row = vim.go.lines - 1,
     col = vim.o.columns,
-    width = maxwidth,
+    width = width,
     height = 10,
     anchor = 'SE',
     style = 'minimal',
@@ -113,6 +119,7 @@ local function openMsgWin(maxwidth)
   })
   vim.wo[msgWin].winblend = 25
   vim.wo[msgWin].winhl = msgWinHl
+  vim.wo[msgWin].wrap = true
 end
 
 local function openHistoryWin()
@@ -213,6 +220,9 @@ local function displayNotifications(items)
   api.nvim_win_set_config(msgWin, {
     height = (height == 0) and 1 or height,
   })
+  -- vim._with({win = msgWin}, function ()
+  -- vim.cmd.wincmd '_'
+  -- end)
 end
 
 local function inFastEventWrapper(cb)
