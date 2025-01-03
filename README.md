@@ -9,7 +9,7 @@ Using this plugin requires Neovim at least on https://github.com/neovim/neovim/c
 ## Configuration
 ```lua
 local notifier = require('msg-show.notifier')
-notifier.setup({notify = true, debug = true, lspProgress = true, duration = 5000}) -- defaults
+notifier.setup({notify = true, debug = true, lspProgress = true, duration = 5000, msgWin = {maxWidth = 130}}) -- defaults
 
 require('msg-show.redir').init(notifier.addUiMessage, notifier.updateUiMessage, notifier.debug)
 vim.keymap.set('n', '<Leader>nh', notifier.showHistory)

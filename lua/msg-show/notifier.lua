@@ -7,6 +7,9 @@ local extmarkOpts = {end_row = 0, end_col = 0, hl_group = defaultHl, hl_eol = tr
 local msgBuf
 local debugBuf
 local msgWin
+local msgWinOpts = {
+  maxWidth = 130,
+}
 local historyWin
 local historyBuf
 local debugWin
@@ -98,10 +101,9 @@ local function computeWinHeight(win)
 end
 
 local function openMsgWin(maxLinesWidth)
-  local winMaxWidth = 60
   local width = maxLinesWidth
-  if width > winMaxWidth then
-    width = winMaxWidth
+  if width > msgWinOpts.maxWidth then
+    width = msgWinOpts.maxWidth
   end
   if not msgWin or not api.nvim_win_is_valid(msgWin) then
     msgWin = api.nvim_open_win(msgBuf, false, {
@@ -191,7 +193,15 @@ local function deferRemovalAgain(id)
 end
 
 --- @class notifier.opts
-local defaultOpts = {notify = true, debug = true, lspProgress = true, duration = 5000}
+local defaultOpts = {
+  notify = true,
+  debug = true,
+  lspProgress = true,
+  duration = 5000,
+  msgWin = {
+    maxWidth = 130,
+  },
+}
 --- @class notifier.opts?
 local realOpts
 
