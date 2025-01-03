@@ -90,36 +90,40 @@ local function composeLines(items)
   return lines, highlights, maxwidth
 end
 
+local function computeWinHeight(win)
+  local maxHeight = vim.go.lines - 2 -- todo: respect tabpage and stl (non)existence
+  local height = api.nvim_win_text_height(win, {}).all
+
+  return (height > maxHeight) and maxHeight or height
+end
+
 local function openMsgWin(maxLinesWidth)
   local winMaxWidth = 60
   local width = maxLinesWidth
   if width > winMaxWidth then
     width = winMaxWidth
   end
-  if msgWin and api.nvim_win_is_valid(msgWin) then
-    api.nvim_win_set_config(msgWin, {
+  if not msgWin or not api.nvim_win_is_valid(msgWin) then
+    msgWin = api.nvim_open_win(msgBuf, false, {
+      relative = 'editor',
+      row = vim.go.lines - 1,
+      col = vim.o.columns,
       width = width,
-      -- relative = 'editor',
-      -- row = vim.go.lines - 1,
-      -- col = vim.o.columns,
+      height = 1,
+      anchor = 'SE',
+      style = 'minimal',
+      focusable = false,
+      zindex = 999,
     })
-    return
+    vim.wo[msgWin].winblend = 25
+    vim.wo[msgWin].winhl = msgWinHl
+    vim.wo[msgWin].wrap = true
   end
 
-  msgWin = api.nvim_open_win(msgBuf, false, {
-    relative = 'editor',
-    row = vim.go.lines - 1,
-    col = vim.o.columns,
+  api.nvim_win_set_config(msgWin, {
     width = width,
-    height = 10,
-    anchor = 'SE',
-    style = 'minimal',
-    focusable = false,
-    zindex = 999,
+    height = computeWinHeight(msgWin),
   })
-  vim.wo[msgWin].winblend = 25
-  vim.wo[msgWin].winhl = msgWinHl
-  vim.wo[msgWin].wrap = true
 end
 
 local function openHistoryWin()
@@ -217,12 +221,6 @@ local function displayNotifications(items)
   end
 
   openMsgWin(maxwidth)
-  api.nvim_win_set_config(msgWin, {
-    height = (height == 0) and 1 or height,
-  })
-  -- vim._with({win = msgWin}, function ()
-  -- vim.cmd.wincmd '_'
-  -- end)
 end
 
 local function inFastEventWrapper(cb)
