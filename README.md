@@ -20,7 +20,7 @@ vim.keymap.set('n', '<Leader>nh', notifier.showHistory)
 - handle `:messages` and `:message clear`
 - verify which `nvim__redraw` calls with current options can be redundant
 ### notifier
-- display `list_cmd` messages in a special way (no timer, position)
+- display `list_cmd` messages in a special way (close on confirm instead on timer, position)
 - allow pause/recreate deletion timers
 - test message kinds added in https://github.com/neovim/neovim/pull/31279
 - verify if lsp progress messages not always replaced
