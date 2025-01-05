@@ -1,7 +1,7 @@
 # msg-show.nvim
 Render UI messages out of the cmdline area (preserving highlights). It started as a reproduction for some Nvim issue. I hope it becomes redundant in favor of a built-in alternative, but for now I find it useful. 
 
-Using this plugin requires Neovim at least on https://github.com/neovim/neovim/commit/43d552c56648bc3125c7509b3d708b6bf6c0c09c
+Using this plugin requires Neovim at least on https://github.com/neovim/neovim/commit/847c28f6f6ccdfa6d7887605b84137e00e5f7968
 - it's inspired in some way by https://github.com/echasnovski/mini.notify (at the moment not intended to display UI messages)
 - still very experimental
 - can display LSP progress notification
@@ -24,5 +24,3 @@ vim.keymap.set('n', '<Leader>nh', notifier.showHistory)
 - allow pause/recreate deletion timers
 - test message kinds added in https://github.com/neovim/neovim/pull/31279
 - verify if lsp progress messages not always replaced
-### nvim
-- inputlist entered from telescope cmd history (maybe from feedkeys)
