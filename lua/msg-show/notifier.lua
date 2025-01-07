@@ -224,7 +224,7 @@ local function displayNotifications(items)
   local lineNr, maxwidth = loadItemsToBuf(items, buf)
   local height = (lineNr < vim.o.lines - 3) and lineNr or vim.o.lines - 3
 
-  if height == 0 then
+  if height == 0 or maxwidth == 0 then
     closeWin(msgWin)
     msgWin = nil
     return
