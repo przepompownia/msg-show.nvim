@@ -22,9 +22,7 @@ local priorities = { 1, 2, 3, 4, 5,
 
 local uiKindHistoryInclude = {
   echo = true,
-  echomsg = true,
   list_cmd = true,
-  lua_print = true,
 }
 
 local msgWinHlMap = {
