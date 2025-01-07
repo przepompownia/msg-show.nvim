@@ -78,7 +78,7 @@ local function handleUiMessages(event, kind, content, replace, history)
     return
   end
 
-  displayMessage(kind, content, replace)
+  displayMessage(kind, content, replace, history)
   vim.schedule(function ()
     api.nvim__redraw({flush = true})
   end)
