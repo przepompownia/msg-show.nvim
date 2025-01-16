@@ -94,7 +94,9 @@ local function composeLines(items)
 end
 
 local function computeWinHeight(win)
-  local maxHeight = vim.go.lines - 2 -- todo: respect tabpage and stl (non)existence
+  local stlSpace = (vim.o.laststatus > 0) and 1 or 0 -- for ls=1 and single window it can take unnecessary line
+  local tabSpace = (vim.o.showtabline == 2 or (vim.o.showtabline == 1 and #vim.api.nvim_list_tabpages() > 1)) and 1 or 0
+  local maxHeight = vim.go.lines - stlSpace - tabSpace
   local height = api.nvim_win_text_height(win, {}).all
 
   return (height > maxHeight) and maxHeight or height
