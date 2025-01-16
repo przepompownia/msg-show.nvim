@@ -14,6 +14,7 @@ local historyWin
 local historyBuf
 local debugWin
 local msgId = 0
+local verbosity = vim.go.verbose
 
 local priorities = { 1, 2, 3, 4, 5,
   search_count = 6,
@@ -23,6 +24,7 @@ local priorities = { 1, 2, 3, 4, 5,
 local uiKindHistoryInclude = {
   echo = true,
   list_cmd = true,
+  verbose = true,
 }
 
 local msgWinHlMap = {
@@ -99,6 +101,8 @@ local function computeWinHeight(win)
 end
 
 local function openMsgWin(maxLinesWidth)
+  local savedEventIgnore = vim.go.eventignore
+  vim.go.eventignore = 'all'
   local width = maxLinesWidth
   if width > msgWinOpts.maxWidth then
     width = msgWinOpts.maxWidth
@@ -114,6 +118,7 @@ local function openMsgWin(maxLinesWidth)
       style = 'minimal',
       focusable = false,
       zindex = 999,
+      noautocmd = true,
     })
     vim.wo[msgWin].winblend = 25
     vim.wo[msgWin].winhl = msgWinHl
@@ -124,6 +129,7 @@ local function openMsgWin(maxLinesWidth)
     width = width,
     height = computeWinHeight(msgWin),
   })
+  vim.go.eventignore = savedEventIgnore
 end
 
 local function openHistoryWin()
@@ -177,7 +183,10 @@ end
 local function deferRemoval(duration, id)
   local timer = assert(vim.uv.new_timer())
   timer:start(duration, duration, function ()
+    local savedEventIgnore = vim.go.eventignore
+    vim.go.eventignore = 'all'
     M.remove(id)
+    vim.go.eventignore = savedEventIgnore
   end)
   removal_timers[id] = timer
 end
@@ -228,7 +237,10 @@ local function displayNotifications(items)
     return
   end
 
+  local savedEventIgnore = vim.go.eventignore
+  vim.go.eventignore = 'all'
   openMsgWin(maxwidth)
+  vim.go.eventignore = savedEventIgnore
 end
 
 local function inFastEventWrapper(cb)
@@ -285,6 +297,11 @@ function M.addUiMessage(chunkSequence, kind, history)
   if uiKindHistoryInclude[kind] or history then
     msgHistory[id] = newItem
   end
+
+  if verbosity > 7 and kind == 'verbose' then
+    return id
+  end
+
   msgsToDisplay[id] = newItem
   refresh()
   deferRemoval(realOpts.duration, id)
@@ -324,6 +341,8 @@ function M.remove(id)
 end
 
 local function displayDebugMessages(msg)
+  local savedEventIgnore = vim.go.eventignore
+  vim.go.eventignore = 'all'
   if not debugWin or not api.nvim_win_is_valid(debugWin) then
     debugWin = api.nvim_open_win(debugBuf, false, {
       relative = 'editor',
@@ -344,6 +363,7 @@ local function displayDebugMessages(msg)
   api.nvim_win_set_config(debugWin, {hide = false})
   api.nvim_buf_set_lines(debugBuf, -1, -1, true, vim.split(msg, '\n'))
   jumpToLastLine(debugWin)
+  vim.go.eventignore = savedEventIgnore
 end
 
 local prog = {}
@@ -413,6 +433,13 @@ function M.setup(opts)
     callback = function ()
       closeWin(msgWin)
       msgWin = nil
+    end,
+  })
+  api.nvim_create_autocmd({'OptionSet'}, {
+    group = augroup,
+    pattern = 'verbose',
+    callback = function (ev)
+      verbosity = vim.v.option_new
     end,
   })
 end
