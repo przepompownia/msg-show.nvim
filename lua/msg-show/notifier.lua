@@ -127,6 +127,8 @@ local function openMsgWin(maxLinesWidth)
 
   api.nvim_win_set_config(msgWin, {
     width = width,
+  })
+  api.nvim_win_set_config(msgWin, {
     height = computeWinHeight(msgWin),
   })
   vim.go.eventignore = savedEventIgnore
@@ -313,13 +315,13 @@ function M.updateUiMessage(id, chunkSequence, kind, history)
   if msgHistory[id] then
     msgHistory[id].msg = chunkSequence
   end
-  if msgsToDisplay[id] then
-    msgsToDisplay[id].msg = chunkSequence
-  else
-    id = M.addUiMessage(chunkSequence, kind, history)
+  if not msgsToDisplay[id] then
+    return M.addUiMessage(chunkSequence, kind, history)
   end
-  refresh()
+
+  msgsToDisplay[id].msg = chunkSequence
   deferRemovalAgain(id)
+  refresh()
 
   return id
 end
@@ -374,10 +376,11 @@ local function displayProgMsg(clientId, progId, report)
 
   local percentage = report.percentage and (' [%s%%]'):format(report.percentage) or ''
   local msg = ('%s: %s%s'):format(client.name or clientId, report.message or (isEnd and 'finished' or '-'), percentage)
+  local chunks = toChunk(msg, vim.log.levels.INFO)
   if nil == progData.notificationId then
-    progData.notificationId = M.addUiMessage(toChunk(msg, vim.log.levels.INFO), 'progress')
+    progData.notificationId = M.addUiMessage(chunks, 'progress')
   else
-    progData.notificationId = M.updateUiMessage(progData.notificationId, toChunk(msg, vim.log.levels.INFO), 'progress')
+    progData.notificationId = M.updateUiMessage(progData.notificationId, chunks, 'progress')
   end
 
   return not isEnd and progData or nil
