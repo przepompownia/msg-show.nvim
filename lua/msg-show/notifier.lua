@@ -159,12 +159,12 @@ local function closeWin(winId)
     return
   end
 
-  local savedEventIgnore = vim.go.eventignore
-  vim.go.eventignore = 'all'
   if api.nvim_win_is_valid(winId) then
+    local savedEventIgnore = vim.go.eventignore
+    vim.go.eventignore = 'all'
     api.nvim_win_close(winId, true)
+    vim.go.eventignore = savedEventIgnore
   end
-  vim.go.eventignore = savedEventIgnore
 end
 
 --- @type uv.uv_timer_t[]
