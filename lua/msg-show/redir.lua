@@ -73,7 +73,7 @@ local function handleUiMessages(event, kind, content, replace, history)
     return
   end
 
-  if kind == '' and #content == 1 and content[1][1] == '\n' then
+  if kind == '' and #content == 1 and content[1][2] == '\n' then
     return
   end
 
