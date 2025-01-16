@@ -73,6 +73,10 @@ local function handleUiMessages(event, kind, content, replace, history)
     return
   end
 
+  if kind == '' and #content == 1 and content[1][1] == '\n' then
+    return
+  end
+
   if kind == 'return_prompt' then
     api.nvim_input('\r')
     return
