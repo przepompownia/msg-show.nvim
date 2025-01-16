@@ -361,7 +361,7 @@ local function displayDebugMessages(msg)
     vim.wo[debugWin].number = true
   end
   api.nvim_win_set_config(debugWin, {hide = false})
-  api.nvim_buf_set_lines(debugBuf, -1, -1, true, vim.split(msg, '\n'))
+  api.nvim_buf_set_lines(debugBuf, -1, -1, true, vim.split(vim.inspect(msg), '\n'))
   jumpToLastLine(debugWin)
   vim.go.eventignore = savedEventIgnore
 end
