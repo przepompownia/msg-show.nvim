@@ -159,11 +159,12 @@ local function closeWin(winId)
     return
   end
 
+  local savedEventIgnore = vim.go.eventignore
+  vim.go.eventignore = 'all'
   if api.nvim_win_is_valid(winId) then
     api.nvim_win_close(winId, true)
   end
-
-  msgWin = nil
+  vim.go.eventignore = savedEventIgnore
 end
 
 --- @type uv.uv_timer_t[]
@@ -183,10 +184,7 @@ end
 local function deferRemoval(duration, id)
   local timer = assert(vim.uv.new_timer())
   timer:start(duration, duration, function ()
-    local savedEventIgnore = vim.go.eventignore
-    vim.go.eventignore = 'all'
     M.remove(id)
-    vim.go.eventignore = savedEventIgnore
   end)
   removal_timers[id] = timer
 end
