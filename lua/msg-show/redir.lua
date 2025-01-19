@@ -27,7 +27,9 @@ end
 local function detach()
   api.nvim__redraw({flush = true})
   vim.ui_detach(ns)
-  api.nvim__redraw({flush = true})
+  vim.schedule(function ()
+    api.nvim__redraw({flush = true})
+  end)
 end
 
 local showDebugMsgs = false
