@@ -155,6 +155,7 @@ local function openHistoryWin()
     zindex = 998,
   })
   vim.wo[historyWin].winblend = 5
+  vim.wo[historyWin].scrolloff = 0
   jumpToLastLine(historyWin)
 end
 
