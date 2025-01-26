@@ -2,7 +2,16 @@ local api = vim.api
 local ns = api.nvim_create_namespace('arctgx.message')
 local defaultHl = 'Comment'
 
-local extmarkOpts = {end_row = 0, end_col = 0, hl_group = defaultHl, hl_eol = true, hl_mode = 'combine'}
+--- @type vim.api.keyset.set_extmark
+local extmarkOpts = {
+  end_row = 0,
+  end_col = 0,
+  hl_group = defaultHl,
+  hl_eol = true,
+  hl_mode = 'combine',
+  invalidate = true,
+  undo_restore = false,
+}
 
 local msgBuf
 local debugBuf
