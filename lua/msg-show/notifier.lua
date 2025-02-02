@@ -13,6 +13,9 @@ local extmarkOpts = {
   undo_restore = false,
 }
 
+--- @type integer?
+local promptMessageId
+
 local msgBuf
 local debugBuf
 local msgWin
@@ -195,7 +198,12 @@ local function destroyRemovalTimer(id)
   removal_timers[id] = nil
 end
 
-local function deferRemoval(duration, id)
+local function deferRemoval(duration, id, kind)
+  if kind == 'list_cmd' then
+    promptMessageId = id
+    return
+  end
+
   local timer = assert(vim.uv.new_timer())
   timer:start(duration, duration, function ()
     M.remove(id)
@@ -316,7 +324,8 @@ function M.addUiMessage(chunkSequence, kind, history)
 
   msgsToDisplay[id] = newItem
   refresh()
-  deferRemoval(realOpts.duration, id)
+
+  deferRemoval(realOpts.duration, id, kind)
 
   previous, previousId, previousDuplicated = vim.json.encode(chunkSequence), id, 1
 
@@ -349,6 +358,15 @@ function M.remove(id)
   if msgHistory[id] then msgHistory[id].removed = true end
   msgsToDisplay[id] = nil
   destroyRemovalTimer(id)
+  refresh()
+end
+
+function M.clearPromptMessage()
+  if nil == promptMessageId then
+    return
+  end
+  msgsToDisplay[promptMessageId] = nil
+  promptMessageId = nil
   refresh()
 end
 
