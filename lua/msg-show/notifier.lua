@@ -487,7 +487,7 @@ function M.setup(opts)
   api.nvim_create_autocmd({'OptionSet'}, {
     group = augroup,
     pattern = 'verbose',
-    callback = function (ev)
+    callback = function ()
       verbosity = vim.v.option_new
     end,
   })
