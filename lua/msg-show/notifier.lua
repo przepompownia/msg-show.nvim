@@ -27,6 +27,50 @@ local historyBuf
 local debugWin
 local msgId = 0
 local verbosity = vim.go.verbose
+local msgWinOpts = {
+  maxWidth = 130,
+}
+
+local msgWinConfig = {
+  relative = 'editor',
+  row = vim.go.lines - 1,
+  col = vim.o.columns,
+  width = 1,
+  height = 1,
+  anchor = 'SE',
+  style = 'minimal',
+  focusable = false,
+  zindex = 999,
+  noautocmd = true,
+}
+
+local historyWinConfig = {
+  relative = 'editor',
+  width = vim.go.columns,
+  height = math.floor(math.min(20, vim.go.lines / 2)),
+  row = vim.go.lines - 1,
+  anchor = 'SE',
+  col = 0,
+  border = 'single',
+  style = 'minimal',
+  title = 'Messages',
+  title_pos = 'center',
+  zindex = 998,
+}
+
+local debugWinConfig = {
+  relative = 'editor',
+  row = 0,
+  col = vim.o.columns,
+  width = 120,
+  height = 14,
+  anchor = 'NE',
+  border = 'rounded',
+  title_pos = 'center',
+  title = ' unhandled messages ',
+  hide = true,
+  style = 'minimal',
+}
 
 local priorities = { 1, 2, 3, 4, 5,
   search_count = 6,
@@ -122,18 +166,11 @@ local function openMsgWin(maxLinesWidth)
     width = msgWinOpts.maxWidth
   end
   if not msgWin or not api.nvim_win_is_valid(msgWin) then
-    msgWin = api.nvim_open_win(msgBuf, false, {
-      relative = 'editor',
-      row = vim.go.lines - 1,
-      col = vim.o.columns,
-      width = width,
-      height = 1,
-      anchor = 'SE',
-      style = 'minimal',
-      focusable = false,
-      zindex = 999,
-      noautocmd = true,
-    })
+    msgWinConfig.row = vim.go.lines - 1
+    msgWinConfig.col = vim.o.columns
+
+    msgWin = api.nvim_open_win(msgBuf, false, msgWinConfig)
+
     vim.wo[msgWin].winblend = 25
     vim.wo[msgWin].winhl = msgWinHl
     vim.wo[msgWin].wrap = true
@@ -153,19 +190,11 @@ local function openHistoryWin()
     return
   end
 
-  historyWin = vim.api.nvim_open_win(historyBuf, true, {
-    relative = 'editor',
-    width = vim.go.columns,
-    height = math.floor(math.min(20, vim.go.lines / 2)),
-    anchor = 'SE',
-    row = vim.go.lines - 1,
-    col = 0,
-    border = 'single',
-    style = 'minimal',
-    title = 'Messages',
-    title_pos = 'center',
-    zindex = 998,
-  })
+  historyWinConfig.width = vim.go.columns
+  historyWinConfig.height = math.floor(math.min(20, vim.go.lines / 2))
+  historyWinConfig.row = vim.go.lines - 1
+
+  historyWin = vim.api.nvim_open_win(historyBuf, true, historyWinConfig)
   vim.wo[historyWin].winblend = 5
   vim.wo[historyWin].scrolloff = 0
   jumpToLastLine(historyWin)
@@ -374,19 +403,8 @@ local function displayDebugMessages(msg)
   local savedEventIgnore = vim.go.eventignore
   vim.go.eventignore = 'all'
   if not debugWin or not api.nvim_win_is_valid(debugWin) then
-    debugWin = api.nvim_open_win(debugBuf, false, {
-      relative = 'editor',
-      row = 0,
-      col = vim.o.columns,
-      width = 120,
-      height = 14,
-      anchor = 'NE',
-      border = 'rounded',
-      title_pos = 'center',
-      title = ' unhandled messages ',
-      hide = true,
-      style = 'minimal',
-    })
+    debugWinConfig.col = vim.o.columns
+    debugWin = api.nvim_open_win(debugBuf, false, debugWinConfig)
     vim.wo[debugWin].winblend = 25
     vim.wo[debugWin].number = true
   end
