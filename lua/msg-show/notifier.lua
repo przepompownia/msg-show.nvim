@@ -159,8 +159,6 @@ local function computeWinHeight(win)
 end
 
 local function openMsgWin(maxLinesWidth)
-  local savedEventIgnore = vim.go.eventignore
-  vim.go.eventignore = 'all'
   local width = maxLinesWidth
   if width > msgWinOpts.maxWidth then
     width = msgWinOpts.maxWidth
@@ -174,6 +172,7 @@ local function openMsgWin(maxLinesWidth)
     vim.wo[msgWin].winblend = 25
     vim.wo[msgWin].winhl = msgWinHl
     vim.wo[msgWin].wrap = true
+    vim.wo[msgWin].eventignorewin = 'all'
   end
 
   api.nvim_win_set_config(msgWin, {
@@ -182,7 +181,6 @@ local function openMsgWin(maxLinesWidth)
   api.nvim_win_set_config(msgWin, {
     height = computeWinHeight(msgWin),
   })
-  vim.go.eventignore = savedEventIgnore
 end
 
 local function openHistoryWin()
@@ -206,10 +204,7 @@ local function closeWin(winId)
   end
 
   if api.nvim_win_is_valid(winId) then
-    local savedEventIgnore = vim.go.eventignore
-    vim.go.eventignore = 'all'
     api.nvim_win_close(winId, true)
-    vim.go.eventignore = savedEventIgnore
   end
 end
 
@@ -286,10 +281,7 @@ local function displayNotifications(items)
     return
   end
 
-  local savedEventIgnore = vim.go.eventignore
-  vim.go.eventignore = 'all'
   openMsgWin(maxwidth)
-  vim.go.eventignore = savedEventIgnore
 end
 
 local function inFastEventWrapper(cb)
@@ -400,8 +392,6 @@ function M.clearPromptMessage()
 end
 
 local function displayDebugMessages(msg)
-  local savedEventIgnore = vim.go.eventignore
-  vim.go.eventignore = 'all'
   if not debugWin or not api.nvim_win_is_valid(debugWin) then
     debugWinConfig.col = vim.o.columns
     debugWin = api.nvim_open_win(debugBuf, false, debugWinConfig)
@@ -411,7 +401,7 @@ local function displayDebugMessages(msg)
   api.nvim_win_set_config(debugWin, {hide = false})
   api.nvim_buf_set_lines(debugBuf, -1, -1, true, vim.split(vim.inspect(msg), '\n'))
   jumpToLastLine(debugWin)
-  vim.go.eventignore = savedEventIgnore
+  vim.wo[debugWin].eventignorewin = 'all'
 end
 
 local prog = {}
