@@ -24,7 +24,7 @@ local debugMessage = function (content)
   error('Not configured yet')
 end
 
-local clearPromptMessage = function ()
+local handleCmdlineHide = function ()
   error('Not configured yet')
 end
 
@@ -59,10 +59,12 @@ local function displayMessage(kind, content, replace, history)
     or addChMessage(content, kind, history)
 end
 
-local function handleUiMessages(event, kind, content, replace, history)
+-- local function handleCmdline(content, pos, firstc, prompt, indent, level, hlId)
+-- end
+
+local function handleMessages(kind, content, replace, history)
   if showDebugMsgs then
-    local dm = ('e: %s, f: %s, k: %s, r: %s, h: %s, c: %s'):format(
-      event,
+    local dm = ('f: %s, k: %s, r: %s, h: %s, c: %s'):format(
       vim.in_fast_event() and 1 or 0,
       vim.inspect(kind),
       replace,
@@ -75,12 +77,7 @@ local function handleUiMessages(event, kind, content, replace, history)
     end
   end
 
-  if event == 'cmdline_hide' then
-    clearPromptMessage()
-    return
-  end
-
-  if event ~= 'msg_show' or kind == 'search_cmd' then
+  if kind == 'search_cmd' then
     return
   end
 
@@ -108,7 +105,15 @@ local function attach()
     return
   end
   api.nvim__redraw({flush = true})
-  vim.ui_attach(ns, {ext_messages = true, ext_cmdline = false}, handleUiMessages)
+  vim.ui_attach(ns, {ext_messages = true, ext_cmdline = false}, function (event, ...)
+    if event == 'msg_show' then
+      handleMessages(...)
+    elseif event == 'cmdline_hide' then
+      handleCmdlineHide()
+    -- elseif event == 'cmdline_show' then
+    --   handleCmdline(...)
+    end
+  end)
   api.nvim__redraw({flush = true})
 end
 
@@ -134,7 +139,7 @@ function M.init(addMsgCb, updateMsgCb, debugMsgCb, clearPromptMsgCb)
     debugMessage = debugMsgCb
   end
   if clearPromptMsgCb then
-    clearPromptMessage = clearPromptMsgCb
+    handleCmdlineHide = clearPromptMsgCb
   end
 
   api.nvim_create_autocmd('CmdlineEnter', {callback = detach})
