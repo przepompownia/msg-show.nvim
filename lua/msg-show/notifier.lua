@@ -223,10 +223,10 @@ local function destroyRemovalTimer(id)
 end
 
 local function deferRemoval(duration, id, kind)
-  -- if kind == 'list_cmd' then
-  --   promptMessageId = id
-  --   return
-  -- end
+  if kind == 'confirm' then
+    promptMessageId = id
+    return
+  end
 
   local timer = assert(vim.uv.new_timer())
   timer:start(duration, duration, function ()
