@@ -270,8 +270,8 @@ local function loadItemsToBuf(items, buf)
 end
 
 --- @param items arctgx.message[]
-local function displayNotifications(items)
-  local buf = msgBuf
+--- @param buf integer
+local function displayNotifications(items, buf)
   local lineNr, maxwidth = loadItemsToBuf(items, buf)
   local height = (lineNr < vim.o.lines - 3) and lineNr or vim.o.lines - 3
 
@@ -301,7 +301,7 @@ local function refresh()
     return a.created < b.created
   end)
   inFastEventWrapper(function ()
-    displayNotifications(msglist)
+    displayNotifications(msglist, msgBuf)
   end)
 end
 
