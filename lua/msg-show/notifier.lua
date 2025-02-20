@@ -463,11 +463,11 @@ function M.setup(opts)
   -- vim.bo[historyBuf].modifiable = false
 
   local augroup = api.nvim_create_augroup('arctgx.msg', {clear = true})
-  api.nvim_create_autocmd({'TabEnter', 'VimResized'}, { group = augroup, callback = refresh })
-  api.nvim_create_autocmd({'TabLeave', 'TabClosed'}, { group = augroup, callback = function ()
+  api.nvim_create_autocmd({'TabEnter', 'VimResized'}, {group = augroup, callback = refresh})
+  api.nvim_create_autocmd({'TabLeave', 'TabClosed'}, {group = augroup, callback = function ()
     closeWin(msgWin)
     msgWin = nil
-  end })
+  end})
   api.nvim_create_autocmd({'OptionSet'}, {
     group = augroup,
     pattern = 'verbose',
