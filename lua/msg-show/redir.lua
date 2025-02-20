@@ -59,12 +59,28 @@ local function displayMessage(kind, content, replace, history)
     or addChMessage(content, kind, history)
 end
 
--- local function handleCmdline(content, pos, firstc, prompt, indent, level, hlId)
--- end
+local function handleCmdline(content, pos, firstc, prompt, indent, level, hlId)
+  if showDebugMsgs then
+    local dm = ('Cmd: f: %s, pos: %s, ﬁ: %s, pr: %s, i: %s, l: %s, hl: %s, c: %s'):format(
+      vim.in_fast_event() and 1 or 0,
+      pos,
+      firstc,
+      vim.inspect(prompt),
+      indent,
+      level,
+      hlId,
+      vim.inspect(content)
+    )
+    if dm ~= previous then
+      debugMessage(dm)
+      previous = dm
+    end
+  end
+end
 
 local function handleMessages(kind, content, replace, history)
   if showDebugMsgs then
-    local dm = ('f: %s, k: %s, r: %s, h: %s, c: %s'):format(
+    local dm = ('Msg: f: %s, k: %s, r: %s, h: %s, c: %s'):format(
       vim.in_fast_event() and 1 or 0,
       vim.inspect(kind),
       replace,
