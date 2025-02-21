@@ -11,7 +11,7 @@ Using this plugin requires Neovim on current master branch
 local notifier = require('msg-show.notifier')
 notifier.setup({notify = true, debug = true, lspProgress = true, duration = 5000, msgWin = {maxWidth = 130}}) -- defaults
 
-require('msg-show.redir').init(notifier.addUiMessage, notifier.updateUiMessage, notifier.debug, notifier.clearPromptMessage)
+require('msg-show.redir').init(notifier.addUiMessage, notifier.updateUiMessage, notifier.debug, notifier.showDialogMessage, notifier.clearPromptMessage)
 vim.keymap.set('n', '<Leader>nh', notifier.showHistory)
 ```
 
@@ -20,5 +20,4 @@ vim.keymap.set('n', '<Leader>nh', notifier.showHistory)
 - handle `:messages` and `:message clear`
 - verify which `nvim__redraw` calls with current options can be redundant
 ### notifier
-- display `list_cmd` messages in a special way (position)
 - allow pause/recreate deletion timers

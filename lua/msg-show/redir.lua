@@ -5,7 +5,7 @@ local ns = api.nvim_create_namespace('messageRedirection')
 --- @param title string?
 --- @param history boolean
 --- @return integer message ID
----@diagnostic disable-next-line: unused-local
+--- @diagnostic disable-next-line: unused-local
 local addChMessage = function (content, title, history)
   error('Not configured yet')
 end
@@ -16,6 +16,11 @@ end
 --- @param history boolean
 ---@diagnostic disable-next-line: unused-local
 local updateChMessage = function (msgId, content, title, history)
+  error('Not configured yet')
+end
+
+--- @diagnostic disable-next-line: unused-local
+local showDialogMessage = function (content)
   error('Not configured yet')
 end
 
@@ -93,6 +98,11 @@ local function handleMessages(kind, content, replace, history)
     end
   end
 
+  if kind == 'confirm' then
+    showDialogMessage(content)
+    return
+  end
+
   if kind == 'search_cmd' then
     return
   end
@@ -144,7 +154,7 @@ api.nvim_create_user_command('MsgRedirToggleDebugUIEvents', function ()
   showDebugMsgs = not showDebugMsgs
 end, {nargs = 0})
 
-function M.init(addMsgCb, updateMsgCb, debugMsgCb, clearPromptMsgCb)
+function M.init(addMsgCb, updateMsgCb, debugMsgCb, showDialogMsgCb, destroyDialogMsgCb)
   if addChMessage then
     addChMessage = addMsgCb
   end
@@ -154,8 +164,11 @@ function M.init(addMsgCb, updateMsgCb, debugMsgCb, clearPromptMsgCb)
   if debugMsgCb then
     debugMessage = debugMsgCb
   end
-  if clearPromptMsgCb then
-    handleCmdlineHide = clearPromptMsgCb
+  if showDialogMsgCb then
+    showDialogMessage = showDialogMsgCb
+  end
+  if destroyDialogMsgCb then
+    handleCmdlineHide = destroyDialogMsgCb
   end
 
   api.nvim_create_autocmd('CmdlineEnter', {callback = detach})

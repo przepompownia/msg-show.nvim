@@ -2,6 +2,8 @@ local api = vim.api
 local ns = api.nvim_create_namespace('arctgx.message')
 local defaultHl = 'Comment'
 
+--- @alias arctgx.message {type: 'ui'|'notification', msg: table<integer, string, integer>[], priority: integer, created: integer, removed: boolean}
+
 --- @type vim.api.keyset.set_extmark
 local extmarkOpts = {
   end_row = 0,
@@ -13,15 +15,13 @@ local extmarkOpts = {
   undo_restore = false,
 }
 
---- @type integer?
-local promptMessageId
-
+--- @type arctgx.message?
+local dialogMessage
 local msgBuf
+local dialogBuf
 local debugBuf
 local msgWin
-local msgWinOpts = {
-  maxWidth = 130,
-}
+local dialogWin
 local historyWin
 local historyBuf
 local debugWin
@@ -40,7 +40,7 @@ local msgWinConfig = {
   anchor = 'SE',
   style = 'minimal',
   focusable = false,
-  zindex = 999,
+  zindex = 998,
   noautocmd = true,
 }
 
@@ -55,7 +55,19 @@ local historyWinConfig = {
   style = 'minimal',
   title = 'Messages',
   title_pos = 'center',
-  zindex = 998,
+  zindex = 997,
+}
+
+local dialogWinConfig = {
+  relative = 'editor',
+  width = 1,
+  height = 1,
+  row = vim.go.lines - 1,
+  anchor = 'SW',
+  col = 0,
+  border = 'single',
+  style = 'minimal',
+  zindex = 999,
 }
 
 local debugWinConfig = {
@@ -93,8 +105,6 @@ local msgWinHl = vim.iter(msgWinHlMap):map(function (k, v) return ('%s:%s'):form
 local nvimBuiltinProgressHandler = vim.lsp.handlers['$/progress']
 
 local M = {}
-
---- @alias arctgx.message {type: 'ui'|'notification', msg: table<integer, string, integer>[], priority: integer, created: integer, removed: boolean}
 
 --- @type arctgx.message[]
 local msgHistory = {}
@@ -158,29 +168,31 @@ local function computeWinHeight(win)
   return (height > maxHeight) and maxHeight or height
 end
 
-local function openMsgWin(maxLinesWidth)
+local function openMsgWin(buf, winId, winConfig, maxLinesWidth)
   local width = maxLinesWidth
   if width > msgWinOpts.maxWidth then
     width = msgWinOpts.maxWidth
   end
-  if not msgWin or not api.nvim_win_is_valid(msgWin) then
-    msgWinConfig.row = vim.go.lines - 1
-    msgWinConfig.col = vim.o.columns
+  if not winId or not api.nvim_win_is_valid(winId) then
+    winConfig.row = vim.go.lines - 1
+    winConfig.col = vim.o.columns
 
-    msgWin = api.nvim_open_win(msgBuf, false, msgWinConfig)
+    winId = api.nvim_open_win(buf, false, winConfig)
 
-    vim.wo[msgWin].winblend = 25
-    vim.wo[msgWin].winhl = msgWinHl
-    vim.wo[msgWin].wrap = true
-    vim.wo[msgWin].eventignorewin = 'all'
+    vim.wo[winId].winblend = 25
+    vim.wo[winId].winhl = msgWinHl
+    vim.wo[winId].wrap = true
+    vim.wo[winId].eventignorewin = 'all'
   end
 
-  api.nvim_win_set_config(msgWin, {
+  api.nvim_win_set_config(winId, {
     width = width,
   })
-  api.nvim_win_set_config(msgWin, {
-    height = computeWinHeight(msgWin),
+  api.nvim_win_set_config(winId, {
+    height = computeWinHeight(winId),
   })
+
+  return winId
 end
 
 local function openHistoryWin()
@@ -222,12 +234,7 @@ local function destroyRemovalTimer(id)
   removal_timers[id] = nil
 end
 
-local function deferRemoval(duration, id, kind)
-  if kind == 'confirm' then
-    promptMessageId = id
-    return
-  end
-
+local function deferRemoval(duration, id)
   local timer = assert(vim.uv.new_timer())
   timer:start(duration, duration, function ()
     M.remove(id)
@@ -271,17 +278,16 @@ end
 
 --- @param items arctgx.message[]
 --- @param buf integer
-local function displayNotifications(items, buf)
+local function displayNotifications(items, buf, win, winConfig)
   local lineNr, maxwidth = loadItemsToBuf(items, buf)
   local height = (lineNr < vim.o.lines - 3) and lineNr or vim.o.lines - 3
 
   if height == 0 or maxwidth == 0 then
-    closeWin(msgWin)
-    msgWin = nil
+    closeWin(win)
     return
   end
 
-  openMsgWin(maxwidth)
+  return openMsgWin(buf, win, winConfig, maxwidth)
 end
 
 local function inFastEventWrapper(cb)
@@ -290,6 +296,12 @@ local function inFastEventWrapper(cb)
     return
   end
   cb()
+end
+
+local function refreshDialog()
+  inFastEventWrapper(function ()
+    dialogWin = displayNotifications({dialogMessage}, dialogBuf, dialogWin, dialogWinConfig)
+  end)
 end
 
 local function refresh()
@@ -301,7 +313,7 @@ local function refresh()
     return a.created < b.created
   end)
   inFastEventWrapper(function ()
-    displayNotifications(msglist, msgBuf)
+    msgWin = displayNotifications(msglist, msgBuf, msgWin, msgWinConfig)
   end)
 end
 
@@ -346,11 +358,16 @@ function M.addUiMessage(chunkSequence, kind, history)
   msgsToDisplay[id] = newItem
   refresh()
 
-  deferRemoval(realOpts.duration, id, kind)
+  deferRemoval(realOpts.duration, id)
 
   previous, previousId, previousDuplicated = vim.json.encode(chunkSequence), id, 1
 
   return id
+end
+
+function M.showDialogMessage(chunkSequence)
+  dialogMessage = {msg = chunkSequence}
+  refreshDialog()
 end
 
 function M.updateUiMessage(id, chunkSequence, kind, history)
@@ -383,12 +400,8 @@ function M.remove(id)
 end
 
 function M.clearPromptMessage()
-  if nil == promptMessageId then
-    return
-  end
-  msgsToDisplay[promptMessageId] = nil
-  promptMessageId = nil
-  refresh()
+  dialogMessage = nil
+  refreshDialog()
 end
 
 local function displayDebugMessages(msg)
@@ -454,6 +467,8 @@ function M.setup(opts)
   if realOpts.notify then
     msgBuf = api.nvim_create_buf(false, true)
   end
+
+  dialogBuf = api.nvim_create_buf(false, true)
 
   if realOpts.lspProgress then
     vim.lsp.handlers['$/progress'] = lspProgressHandler
