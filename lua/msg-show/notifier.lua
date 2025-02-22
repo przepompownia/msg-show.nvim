@@ -1,7 +1,7 @@
 local api = vim.api
 local ns = api.nvim_create_namespace('arctgx.message')
 local windows = require('msg-show.windows')
-local defaultHl = 'Comment'
+local defaultHl = windows.defaultHl
 
 --- @alias arctgx.message {type: 'ui'|'notification', msg: table<integer, string, integer>[], priority: integer, created: integer, removed: boolean}
 
