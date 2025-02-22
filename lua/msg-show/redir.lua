@@ -29,10 +29,6 @@ local debugMessage = function (content)
   error('Not configured yet')
 end
 
-local handleCmdlineHide = function ()
-  error('Not configured yet')
-end
-
 local function detach()
   api.nvim__redraw({flush = true})
   vim.ui_detach(ns)
@@ -135,7 +131,7 @@ local function attach()
     if event == 'msg_show' then
       handleMessages(...)
     elseif event == 'cmdline_hide' then
-      handleCmdlineHide()
+      showDialogMessage()
     -- elseif event == 'cmdline_show' then
     --   handleCmdline(...)
     end
@@ -154,7 +150,7 @@ api.nvim_create_user_command('MsgRedirToggleDebugUIEvents', function ()
   showDebugMsgs = not showDebugMsgs
 end, {nargs = 0})
 
-function M.init(addMsgCb, updateMsgCb, debugMsgCb, showDialogMsgCb, destroyDialogMsgCb)
+function M.init(addMsgCb, updateMsgCb, debugMsgCb, showDialogMsgCb)
   if addChMessage then
     addChMessage = addMsgCb
   end
@@ -166,9 +162,6 @@ function M.init(addMsgCb, updateMsgCb, debugMsgCb, showDialogMsgCb, destroyDialo
   end
   if showDialogMsgCb then
     showDialogMessage = showDialogMsgCb
-  end
-  if destroyDialogMsgCb then
-    handleCmdlineHide = destroyDialogMsgCb
   end
 
   api.nvim_create_autocmd('CmdlineEnter', {callback = detach})

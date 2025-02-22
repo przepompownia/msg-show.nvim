@@ -1,5 +1,6 @@
 local api = vim.api
 local ns = api.nvim_create_namespace('arctgx.message')
+local windows = require('msg-show.windows')
 local defaultHl = 'Comment'
 
 --- @alias arctgx.message {type: 'ui'|'notification', msg: table<integer, string, integer>[], priority: integer, created: integer, removed: boolean}
@@ -27,62 +28,11 @@ local historyBuf
 local debugWin
 local msgId = 0
 local verbosity = vim.go.verbose
-local msgWinOpts = {
-  maxWidth = 130,
-}
 
-local msgWinConfig = {
-  relative = 'editor',
-  row = vim.go.lines - 1,
-  col = vim.o.columns,
-  width = 1,
-  height = 1,
-  anchor = 'SE',
-  style = 'minimal',
-  focusable = false,
-  zindex = 998,
-  noautocmd = true,
-}
-
-local historyWinConfig = {
-  relative = 'editor',
-  width = vim.go.columns,
-  height = math.floor(math.min(20, vim.go.lines / 2)),
-  row = vim.go.lines - 1,
-  anchor = 'SE',
-  col = 0,
-  border = 'single',
-  style = 'minimal',
-  title = 'Messages',
-  title_pos = 'center',
-  zindex = 997,
-}
-
-local dialogWinConfig = {
-  relative = 'editor',
-  width = 1,
-  height = 1,
-  row = vim.go.lines - 1,
-  anchor = 'SW',
-  col = 0,
-  border = 'single',
-  style = 'minimal',
-  zindex = 999,
-}
-
-local debugWinConfig = {
-  relative = 'editor',
-  row = 0,
-  col = vim.o.columns,
-  width = 120,
-  height = 14,
-  anchor = 'NE',
-  border = 'rounded',
-  title_pos = 'center',
-  title = ' unhandled messages ',
-  hide = true,
-  style = 'minimal',
-}
+local msgWinConfig = windows.settings.notification
+local dialogWinConfig = windows.settings.dialog
+local historyWinConfig = windows.settings.history
+local debugWinConfig = windows.settings.debug
 
 local priorities = { 1, 2, 3, 4, 5,
   search_count = 6,
@@ -94,13 +44,6 @@ local uiKindHistoryInclude = {
   list_cmd = true,
   verbose = true,
 }
-
-local msgWinHlMap = {
-  Normal = defaultHl,
-  Search = defaultHl,
-}
-
-local msgWinHl = vim.iter(msgWinHlMap):map(function (k, v) return ('%s:%s'):format(k, v) end):join(',')
 
 local nvimBuiltinProgressHandler = vim.lsp.handlers['$/progress']
 
@@ -139,12 +82,6 @@ local function composeSingleItem(item, lines, highlights, startLine)
   return line + 1, maxwidth
 end
 
-local function jumpToLastLine(win)
-  vim._with({win = win}, function ()
-    vim.cmd.normal({args = {'G'}, mods = {silent = true}})
-  end)
-end
-
 --- @param items arctgx.message[]
 local function composeLines(items)
   local line, lines, highlights, maxwidth, width = 0, {}, {}, 0, 0
@@ -157,67 +94,6 @@ local function composeLines(items)
   end
 
   return lines, highlights, maxwidth
-end
-
-local function computeWinHeight(win)
-  local stlSpace = (vim.o.laststatus > 0) and 1 or 0 -- for ls=1 and single window it can take unnecessary line
-  local tabSpace = (vim.o.showtabline == 2 or (vim.o.showtabline == 1 and #vim.api.nvim_list_tabpages() > 1)) and 1 or 0
-  local maxHeight = vim.go.lines - stlSpace - tabSpace
-  local height = api.nvim_win_text_height(win, {}).all
-
-  return (height > maxHeight) and maxHeight or height
-end
-
-local function openMsgWin(buf, winId, winConfig, maxLinesWidth)
-  local width = maxLinesWidth
-  if width > msgWinOpts.maxWidth then
-    width = msgWinOpts.maxWidth
-  end
-  if not winId or not api.nvim_win_is_valid(winId) then
-    winConfig.row = vim.go.lines - 1
-    winConfig.col = vim.o.columns
-
-    winId = api.nvim_open_win(buf, false, winConfig)
-
-    vim.wo[winId].winblend = 25
-    vim.wo[winId].winhl = msgWinHl
-    vim.wo[winId].wrap = true
-    vim.wo[winId].eventignorewin = 'all'
-  end
-
-  api.nvim_win_set_config(winId, {
-    width = width,
-  })
-  api.nvim_win_set_config(winId, {
-    height = computeWinHeight(winId),
-  })
-
-  return winId
-end
-
-local function openHistoryWin()
-  if historyWin and api.nvim_win_is_valid(historyWin) then
-    return
-  end
-
-  historyWinConfig.width = vim.go.columns
-  historyWinConfig.height = math.floor(math.min(20, vim.go.lines / 2))
-  historyWinConfig.row = vim.go.lines - 1
-
-  historyWin = vim.api.nvim_open_win(historyBuf, true, historyWinConfig)
-  vim.wo[historyWin].winblend = 5
-  vim.wo[historyWin].scrolloff = 0
-  jumpToLastLine(historyWin)
-end
-
-local function closeWin(winId)
-  if not winId then
-    return
-  end
-
-  if api.nvim_win_is_valid(winId) then
-    api.nvim_win_close(winId, true)
-  end
 end
 
 --- @type uv.uv_timer_t[]
@@ -279,15 +155,19 @@ end
 --- @param items arctgx.message[]
 --- @param buf integer
 local function displayNotifications(items, buf, win, winConfig)
+  if vim.tbl_isempty(items) then
+    windows.close(win)
+    return
+  end
   local lineNr, maxwidth = loadItemsToBuf(items, buf)
   local height = (lineNr < vim.o.lines - 3) and lineNr or vim.o.lines - 3
 
   if height == 0 or maxwidth == 0 then
-    closeWin(win)
+    windows.close(win)
     return
   end
 
-  return openMsgWin(buf, win, winConfig, maxwidth)
+  return windows.open(buf, win, winConfig, maxwidth)
 end
 
 local function inFastEventWrapper(cb)
@@ -296,12 +176,6 @@ local function inFastEventWrapper(cb)
     return
   end
   cb()
-end
-
-local function refreshDialog()
-  inFastEventWrapper(function ()
-    dialogWin = displayNotifications({dialogMessage}, dialogBuf, dialogWin, dialogWinConfig)
-  end)
 end
 
 local function refresh()
@@ -367,7 +241,9 @@ end
 
 function M.showDialogMessage(chunkSequence)
   dialogMessage = {msg = chunkSequence}
-  refreshDialog()
+  inFastEventWrapper(function ()
+    dialogWin = displayNotifications({dialogMessage}, dialogBuf, dialogWin, dialogWinConfig)
+  end)
 end
 
 function M.updateUiMessage(id, chunkSequence, kind, history)
@@ -388,7 +264,7 @@ end
 function M.showHistory()
   inFastEventWrapper(function ()
     loadItemsToBuf(msgHistory, historyBuf)
-    openHistoryWin()
+    historyWin = windows.open(historyBuf, historyWin, historyWinConfig)
   end)
 end
 
@@ -399,22 +275,9 @@ function M.remove(id)
   refresh()
 end
 
-function M.clearPromptMessage()
-  dialogMessage = nil
-  refreshDialog()
-end
-
 local function displayDebugMessages(msg)
-  if not debugWin or not api.nvim_win_is_valid(debugWin) then
-    debugWinConfig.col = vim.o.columns
-    debugWin = api.nvim_open_win(debugBuf, false, debugWinConfig)
-    vim.wo[debugWin].winblend = 25
-    vim.wo[debugWin].number = true
-  end
-  api.nvim_win_set_config(debugWin, {hide = false})
   api.nvim_buf_set_lines(debugBuf, -1, -1, true, vim.split(vim.inspect(msg), '\n'))
-  jumpToLastLine(debugWin)
-  vim.wo[debugWin].eventignorewin = 'all'
+  debugWin = windows.open(debugBuf, debugWin, debugWinConfig)
 end
 
 local prog = {}
@@ -480,7 +343,7 @@ function M.setup(opts)
   local augroup = api.nvim_create_augroup('arctgx.msg', {clear = true})
   api.nvim_create_autocmd({'TabEnter', 'VimResized'}, {group = augroup, callback = refresh})
   api.nvim_create_autocmd({'TabLeave', 'TabClosed'}, {group = augroup, callback = function ()
-    closeWin(msgWin)
+    windows.close(msgWin)
     msgWin = nil
   end})
   api.nvim_create_autocmd({'OptionSet'}, {
