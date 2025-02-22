@@ -155,10 +155,6 @@ end
 --- @param items arctgx.message[]
 --- @param buf integer
 local function displayNotifications(items, buf, win, winConfig)
-  if vim.tbl_isempty(items) then
-    windows.close(win)
-    return
-  end
   local lineNr, maxwidth = loadItemsToBuf(items, buf)
   local height = (lineNr < vim.o.lines - 3) and lineNr or vim.o.lines - 3
 
@@ -240,7 +236,10 @@ function M.addUiMessage(chunkSequence, kind, history)
 end
 
 function M.showDialogMessage(chunkSequence)
-  dialogMessage = {msg = chunkSequence}
+  if nil == dialogMessage and nil == chunkSequence then
+    return
+  end
+  dialogMessage = chunkSequence and {msg = chunkSequence} or nil
   inFastEventWrapper(function ()
     dialogWin = displayNotifications({dialogMessage}, dialogBuf, dialogWin, dialogWinConfig)
   end)

@@ -1,6 +1,6 @@
 local api = vim.api
 
---- @alias window {config: vim.api.keyset.win_config, options: vim.wo?, after: fun(integer, integer)?}
+--- @alias window {config: vim.api.keyset.win_config, options: vim.wo?, after: fun(integer, integer?)?}
 
 local defaultHl = 'Comment'
 
@@ -72,13 +72,33 @@ local settings = {
       relative = 'editor',
       width = 1,
       height = 1,
-      row = vim.go.lines - 2,
+      row = vim.go.lines - 3,
       anchor = 'SW',
       col = 0,
       border = 'single',
       style = 'minimal',
+      focusable = false,
       zindex = 999,
     },
+    options = {
+      wrap = true,
+      eventignorewin = 'all',
+    },
+    after = function (winId, maxLinesWidth)
+      local width = maxLinesWidth
+      if width > msgWinOpts.maxWidth then
+        width = msgWinOpts.maxWidth
+      end
+      api.nvim_win_set_config(winId, {
+        relative = 'editor',
+        row = vim.go.lines - 1,
+        col = 0,
+        width = width,
+      })
+      api.nvim_win_set_config(winId, {
+        height = computeWinHeight(winId),
+      })
+    end,
   },
   history = {
     config = {
@@ -128,7 +148,7 @@ local settings = {
       eventignorewin = 'all',
       winblend = 25,
     },
-    after = function (winId, maxLinesWidth)
+    after = function (winId)
       api.nvim_win_set_config(winId, {
         relative = 'editor',
         row = 0,
@@ -169,7 +189,9 @@ local function open(buf, winId, winConfig, maxLinesWidth)
 
     applyOptions(winId, winConfig.options)
   end
-  winConfig.after(winId, maxLinesWidth)
+  if type(winConfig.after) == 'function' then
+    winConfig.after(winId, maxLinesWidth)
+  end
 
   return winId
 end
