@@ -97,17 +97,17 @@ local function composeLines(items)
 end
 
 --- @type uv.uv_timer_t[]
-local removal_timers = {}
+local removalTimers = {}
 
 local function destroyRemovalTimer(id)
-  local timer = removal_timers[id]
+  local timer = removalTimers[id]
   if not timer then
     return
   end
 
   timer:stop()
   timer:close()
-  removal_timers[id] = nil
+  removalTimers[id] = nil
 end
 
 local function deferRemoval(duration, id)
@@ -115,11 +115,11 @@ local function deferRemoval(duration, id)
   timer:start(duration, duration, function ()
     M.remove(id)
   end)
-  removal_timers[id] = timer
+  removalTimers[id] = timer
 end
 
 local function deferRemovalAgain(id)
-  local timer = removal_timers[id]
+  local timer = removalTimers[id]
   if not timer then
     return
   end
@@ -127,7 +127,7 @@ local function deferRemovalAgain(id)
 end
 
 local function deferAllTimers()
-  for _, timer in ipairs(removal_timers) do
+  for _, timer in ipairs(removalTimers) do
     timer:again()
   end
 end
