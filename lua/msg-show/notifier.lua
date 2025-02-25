@@ -126,6 +126,12 @@ local function deferRemovalAgain(id)
   timer:again()
 end
 
+local function deferAllTimers()
+  for _, timer in ipairs(removal_timers) do
+    timer:again()
+  end
+end
+
 --- @class notifier.opts
 local defaultOpts = {
   notify = true,
@@ -278,6 +284,8 @@ local function displayDebugMessages(msg)
   api.nvim_buf_set_lines(debugBuf, -1, -1, true, vim.split(vim.inspect(msg), '\n'))
   debugWin = windows.open(debugBuf, debugWin, debugWinConfig)
 end
+
+M.delayRemoval = deferAllTimers
 
 local prog = {}
 

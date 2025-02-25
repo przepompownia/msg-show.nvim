@@ -13,6 +13,7 @@ notifier.setup({notify = true, debug = true, lspProgress = true, duration = 5000
 
 require('msg-show.redir').init(notifier.addUiMessage, notifier.updateUiMessage, notifier.debug, notifier.showDialogMessage)
 vim.keymap.set('n', '<Leader>nh', notifier.showHistory)
+vim.keymap.set('n', '<Leader><Leader>', notifier.delayRemoval)
 ```
 
 ## Todo
