@@ -127,7 +127,7 @@ local function deferRemovalAgain(id)
 end
 
 local function deferAllTimers()
-  for _, timer in ipairs(removalTimers) do
+  for _, timer in pairs(removalTimers) do
     timer:again()
   end
 end
