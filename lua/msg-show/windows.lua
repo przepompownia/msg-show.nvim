@@ -1,6 +1,6 @@
 local api = vim.api
 
---- @alias window {config: vim.api.keyset.win_config, options: vim.wo?, after: fun(integer, table?)?}
+--- @alias window {config: vim.api.keyset.win_config, options: vim.wo?, after: fun(winId: integer, opts: table?)?}
 
 local defaultHl = 'Comment'
 
