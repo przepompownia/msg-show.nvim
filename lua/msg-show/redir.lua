@@ -1,33 +1,6 @@
 local api = vim.api
 local ns = api.nvim_create_namespace('messageRedirection')
-
---- @param content [integer, string, integer][][]
---- @param title string?
---- @param history boolean
---- @return integer message ID
---- @diagnostic disable-next-line: unused-local
-local addChMessage = function (content, title, history)
-  error('Not configured yet')
-end
-
---- @param msgId integer
---- @param content [integer, string, integer][][]
---- @param title string?
---- @param history boolean
----@diagnostic disable-next-line: unused-local
-local updateChMessage = function (msgId, content, title, history)
-  error('Not configured yet')
-end
-
---- @diagnostic disable-next-line: unused-local
-local showDialogMessage = function (content)
-  error('Not configured yet')
-end
-
----@diagnostic disable-next-line: unused-local
-local debugMessage = function (content)
-  error('Not configured yet')
-end
+local notifier = require('msg-show.notifier')
 
 local function detach()
   api.nvim__redraw({flush = true})
@@ -51,13 +24,13 @@ local replaceableMsgIds = {
 local function displayMessage(kind, content, replace, history)
   local msgId = replaceableMsgIds[kind]
   if nil == msgId then
-    addChMessage(content, kind, history)
+    notifier.addUiMessage(content, kind, history)
     return
   end
 
   replaceableMsgIds[kind] = (replace and msgId)
-    and updateChMessage(msgId, content, kind, history)
-    or addChMessage(content, kind, history)
+    and notifier.updateUiMessage(msgId, content, kind, history)
+    or notifier.addUiMessage(content, kind, history)
 end
 
 local function handleCmdline(content, pos, firstc, prompt, indent, level, hlId)
@@ -72,10 +45,6 @@ local function handleCmdline(content, pos, firstc, prompt, indent, level, hlId)
       hlId,
       vim.inspect(content)
     )
-    if dm ~= previous then
-      debugMessage(dm)
-      previous = dm
-    end
   end
 end
 
@@ -89,13 +58,13 @@ local function handleMessages(kind, content, replace, history)
       vim.inspect(content)
     )
     if dm ~= previous then
-      debugMessage(dm)
+      notifier.debug(dm)
       previous = dm
     end
   end
 
   if kind == 'confirm' then
-    showDialogMessage(content)
+    notifier.showDialogMessage(content)
     return
   end
 
@@ -131,7 +100,7 @@ local function attach()
     if event == 'msg_show' then
       handleMessages(...)
     elseif event == 'cmdline_hide' then
-      showDialogMessage()
+      notifier.showDialogMessage()
     -- elseif event == 'cmdline_show' then
     --   handleCmdline(...)
     end
@@ -150,20 +119,7 @@ api.nvim_create_user_command('MsgRedirToggleDebugUIEvents', function ()
   showDebugMsgs = not showDebugMsgs
 end, {nargs = 0})
 
-function M.init(addMsgCb, updateMsgCb, debugMsgCb, showDialogMsgCb)
-  if addChMessage then
-    addChMessage = addMsgCb
-  end
-  if updateChMessage then
-    updateChMessage = updateMsgCb
-  end
-  if debugMsgCb then
-    debugMessage = debugMsgCb
-  end
-  if showDialogMsgCb then
-    showDialogMessage = showDialogMsgCb
-  end
-
+function M.init()
   api.nvim_create_autocmd('CmdlineEnter', {callback = detach})
   api.nvim_create_autocmd({'CmdlineLeave'}, {callback = attach})
   api.nvim_create_autocmd({'UIEnter'}, {
