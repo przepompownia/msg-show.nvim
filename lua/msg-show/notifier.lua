@@ -169,7 +169,7 @@ local function displayNotifications(items, buf, win, winConfig)
     return
   end
 
-  return windows.open(buf, win, winConfig, maxwidth)
+  return windows.open(buf, win, winConfig, {maxLinesWidth = maxwidth})
 end
 
 local function inFastEventWrapper(cb)

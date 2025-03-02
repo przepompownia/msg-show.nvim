@@ -1,6 +1,6 @@
 local api = vim.api
 
---- @alias window {config: vim.api.keyset.win_config, options: vim.wo?, after: fun(integer, integer?)?}
+--- @alias window {config: vim.api.keyset.win_config, options: vim.wo?, after: fun(integer, table?)?}
 
 local defaultHl = 'Comment'
 
@@ -51,9 +51,9 @@ local settings = {
       wrap = true,
       eventignorewin = 'all',
     },
-    after = function (winId, maxLinesWidth)
-      local width = maxLinesWidth
-      if width > msgWinOpts.maxWidth then
+    after = function (winId, opts)
+      local width = opts.maxLinesWidth
+      if width and width > msgWinOpts.maxWidth then
         width = msgWinOpts.maxWidth
       end
       api.nvim_win_set_config(winId, {
@@ -84,9 +84,9 @@ local settings = {
       wrap = true,
       eventignorewin = 'all',
     },
-    after = function (winId, maxLinesWidth)
-      local width = maxLinesWidth
-      if width > msgWinOpts.maxWidth then
+    after = function (winId, opts)
+      local width = opts.maxLinesWidth
+      if width and width > msgWinOpts.maxWidth then
         width = msgWinOpts.maxWidth
       end
       api.nvim_win_set_config(winId, {
@@ -118,7 +118,7 @@ local settings = {
       winblend = 5,
       scrolloff = 0,
     },
-    after = function (winId, maxLinesWidth)
+    after = function (winId)
       api.nvim_win_set_config(winId, {
         width = vim.go.columns,
         height = math.floor(math.min(20, vim.go.lines / 2)),
@@ -182,15 +182,15 @@ end
 --- @param buf integer
 --- @param winId integer
 --- @param winConfig window
---- @param maxLinesWidth integer?
-local function open(buf, winId, winConfig, maxLinesWidth)
+--- @param opts table?
+local function open(buf, winId, winConfig, opts)
   if not winId or not api.nvim_win_is_valid(winId) then
     winId = api.nvim_open_win(buf, false, winConfig.config)
 
     applyOptions(winId, winConfig.options)
   end
   if type(winConfig.after) == 'function' then
-    winConfig.after(winId, maxLinesWidth)
+    winConfig.after(winId, opts or {})
   end
 
   return winId
