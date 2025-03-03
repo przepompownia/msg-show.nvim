@@ -34,6 +34,10 @@ local function displayMessage(kind, content, replace, history)
     or notifier.addUiMessage(content, kind, history)
 end
 
+local function handleCmdlinePos(pos, _level)
+  cmdline.refresh(pos)
+end
+
 local function handleCmdline(content, pos, firstc, prompt, indent, level, hlId)
   if showDebugMsgs then
     local dm = ('Cmd: f: %s, pos: %s, ﬁ: %s, pr: %s, i: %s, l: %s, hl: %s, c: %s'):format(
@@ -106,6 +110,8 @@ local function attach()
     elseif event == 'cmdline_hide' then
       cmdline.hide()
       notifier.showDialogMessage()
+    elseif event == 'cmdline_pos' then
+      handleCmdlinePos(...)
     elseif event == 'cmdline_show' then
       handleCmdline(...)
     end
