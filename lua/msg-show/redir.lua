@@ -1,6 +1,7 @@
 local api = vim.api
 local ns = api.nvim_create_namespace('messageRedirection')
 local notifier = require('msg-show.notifier')
+local cmdline = require('msg-show.cmdline')
 
 local function detach()
   api.nvim__redraw({flush = true})
@@ -45,7 +46,10 @@ local function handleCmdline(content, pos, firstc, prompt, indent, level, hlId)
       hlId,
       vim.inspect(content)
     )
+    notifier.debug(dm)
   end
+
+  cmdline.show(content, pos, firstc)
 end
 
 local function handleMessages(kind, content, replace, history)
@@ -96,13 +100,14 @@ local function attach()
     return
   end
   api.nvim__redraw({flush = true})
-  vim.ui_attach(ns, {ext_messages = true, ext_cmdline = false}, function (event, ...)
+  vim.ui_attach(ns, {ext_messages = true, ext_cmdline = true}, function (event, ...)
     if event == 'msg_show' then
       handleMessages(...)
     elseif event == 'cmdline_hide' then
+      cmdline.hide()
       notifier.showDialogMessage()
-    -- elseif event == 'cmdline_show' then
-    --   handleCmdline(...)
+    elseif event == 'cmdline_show' then
+      handleCmdline(...)
     end
   end)
   api.nvim__redraw({flush = true})
@@ -120,8 +125,6 @@ api.nvim_create_user_command('MsgRedirToggleDebugUIEvents', function ()
 end, {nargs = 0})
 
 function M.init()
-  api.nvim_create_autocmd('CmdlineEnter', {callback = detach})
-  api.nvim_create_autocmd({'CmdlineLeave'}, {callback = attach})
   api.nvim_create_autocmd({'UIEnter'}, {
     callback = function ()
       local startMessages = vim.trim(api.nvim_exec2('messages', {output = true}).output)

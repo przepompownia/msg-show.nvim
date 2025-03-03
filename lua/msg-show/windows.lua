@@ -30,6 +30,10 @@ local function jumpToLastLine(win)
   end)
 end
 
+local function hide(winId, value)
+  api.nvim_win_set_config(winId, {hide = value})
+end
+
 --- @type table<string, window>
 local settings = {
   notification = {
@@ -158,6 +162,31 @@ local settings = {
       jumpToLastLine(winId)
     end,
   },
+  cmdline = {
+    config = {
+      relative = 'editor',
+      row = vim.o.lines - 1,
+      col = 0,
+      anchor = 'SW',
+      height = 1,
+      width = vim.o.columns - 1,
+    },
+    options = {
+      eventignorewin = 'all',
+      virtualedit = 'onemore',
+      number = false,
+      relativenumber = false,
+    },
+    after = vim.schedule_wrap(function (winId, opts)
+      api.nvim_win_set_cursor(winId, {1, opts.cursorPos or 0})
+      hide(winId, false)
+      api.nvim__redraw({
+        flush = true,
+        cursor = true,
+        win = winId,
+      })
+    end)
+  },
 }
 
 --- @param winId integer
@@ -197,6 +226,7 @@ local function open(buf, winId, winConfig, opts)
 end
 
 return {
+  hide = hide,
   close = close,
   open = open,
   defaultHl = defaultHl,
