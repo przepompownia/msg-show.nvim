@@ -176,6 +176,7 @@ local settings = {
       virtualedit = 'onemore',
       number = false,
       relativenumber = false,
+      statuscolumn = '',
     },
     after = vim.schedule_wrap(function (winId, opts)
       api.nvim_win_set_cursor(winId, {1, opts.cursorPos or 0})
