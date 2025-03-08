@@ -38,7 +38,7 @@ local function handleCmdlinePos(pos, _level)
   cmdline.refresh(pos)
 end
 
-local function handleCmdline(content, pos, firstc, prompt, indent, level, hlId)
+local function showCmdline(content, pos, firstc, prompt, indent, level, hlId)
   if showDebugMsgs then
     local dm = ('Cmd: f: %s, pos: %s, ﬁ: %s, pr: %s, i: %s, l: %s, hl: %s, c: %s'):format(
       vim.in_fast_event() and 1 or 0,
@@ -113,7 +113,7 @@ local function attach()
     elseif event == 'cmdline_pos' then
       handleCmdlinePos(...)
     elseif event == 'cmdline_show' then
-      handleCmdline(...)
+      showCmdline(...)
     end
   end)
   api.nvim__redraw({flush = true})
