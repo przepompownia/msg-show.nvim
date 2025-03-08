@@ -34,7 +34,7 @@ local function displayMessage(kind, content, replace, history)
     or notifier.addUiMessage(content, kind, history)
 end
 
-local function handleCmdlinePos(pos, _level)
+local function jumpToCmdlinePos(pos, _level)
   cmdline.refresh(pos)
 end
 
@@ -111,7 +111,7 @@ local function attach()
       cmdline.hide()
       notifier.showDialogMessage()
     elseif event == 'cmdline_pos' then
-      handleCmdlinePos(...)
+      jumpToCmdlinePos(...)
     elseif event == 'cmdline_show' then
       showCmdline(...)
     end
