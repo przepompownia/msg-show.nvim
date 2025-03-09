@@ -28,4 +28,5 @@ vim.keymap.set('n', '<Leader><Leader>', notifier.delayRemoval)
 - multi-chunk content
 - indents
 - highlights
+- `more` if needed
 - `cmdline_block_*`, `cmdline_special_char` events
