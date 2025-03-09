@@ -127,7 +127,9 @@ api.nvim_create_user_command('MsgShowToggle', function ()
   enable = not enable
   if not enable then
     detach()
+    return
   end
+  attach()
 end, {nargs = 0})
 
 api.nvim_create_user_command('MsgShowToggleDebugUIEvents', function ()
