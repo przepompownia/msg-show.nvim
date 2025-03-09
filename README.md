@@ -22,3 +22,6 @@ vim.keymap.set('n', '<Leader><Leader>', notifier.delayRemoval)
 - verify which `nvim__redraw` calls with current options can be redundant
 ### notifier
 - allow pause/recreate deletion timers
+### cmdline
+- multi-chunk content
+- vim.ui.input prompt
