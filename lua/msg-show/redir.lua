@@ -35,6 +35,10 @@ local function displayMessage(kind, content, replace, history)
 end
 
 local function jumpToCmdlinePos(pos, _level)
+  if showDebugMsgs then
+    notifier.debug(('Pos: %s'):format(pos))
+  end
+
   cmdline.refresh(pos)
 end
 
@@ -53,7 +57,7 @@ local function showCmdline(content, pos, firstc, prompt, indent, level, hlId)
     notifier.debug(dm)
   end
 
-  cmdline.show(content, pos, firstc)
+  cmdline.show(content, pos, firstc, prompt)
 end
 
 local function handleMessages(kind, content, replace, history)
