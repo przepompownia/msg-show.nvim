@@ -5,8 +5,9 @@ local cmdWinConfig = windows.settings.cmdline
 local cmdwin
 local promptlen = 0 -- like in Nvim #27855 - probably the only way to keep the value across events
 
+--- @param pos? integer
 local function refresh(pos)
-  cmdwin = windows.open(cmdbuf, cmdwin, cmdWinConfig, {cursorPos = promptlen + pos, buf = cmdbuf})
+  cmdwin = windows.open(cmdbuf, cmdwin, cmdWinConfig, {cursorPos = promptlen + (pos or 0)})
 end
 
 local function show(content, pos, firstc, prompt)
