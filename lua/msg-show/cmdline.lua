@@ -21,7 +21,7 @@ local function hide(_abort)
 end
 
 local augroup = api.nvim_create_augroup('arctgx.cmdline', {clear = true})
-api.nvim_create_autocmd({'TabEnter', 'VimResized'}, {group = augroup, callback = function ()
+api.nvim_create_autocmd({'VimResized'}, {group = augroup, callback = function ()
   refresh()
 end})
 api.nvim_create_autocmd({'TabLeave', 'TabClosed'}, {group = augroup, callback = function ()
