@@ -18,9 +18,7 @@ end
 
 local function hide(_abort)
   api.nvim_buf_set_lines(cmdbuf, 0, -1, true, {})
-  vim.schedule(function ()
-    windows.hide(cmdwin, true)
-  end)
+  windows.hide(cmdwin, true)
 end
 
 local augroup = api.nvim_create_augroup('arctgx.cmdline', {clear = true})
