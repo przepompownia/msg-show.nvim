@@ -132,7 +132,7 @@ local function deferAllTimers()
   end
 end
 
---- @class notifier.opts
+--- @class arctgx.msg-show.notifier.opts
 local defaultOpts = {
   notify = true,
   debug = true,
@@ -142,7 +142,7 @@ local defaultOpts = {
     maxWidth = 130,
   },
 }
---- @class notifier.opts?
+--- @class arctgx.msg-show.notifier.opts?
 local realOpts
 
 local function loadItemsToBuf(items, buf)
@@ -325,9 +325,9 @@ function M.debug(msg)
   end)
 end
 
----@param opts notifier.opts?
+---@param opts arctgx.msg-show.notifier.opts?
 function M.setup(opts)
-  --- @type notifier.opts
+  --- @type arctgx.msg-show.notifier.opts
   realOpts = vim.tbl_extend('keep', opts or {}, defaultOpts)
 
   debugBuf = api.nvim_create_buf(false, true)
