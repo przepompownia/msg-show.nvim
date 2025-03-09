@@ -101,10 +101,10 @@ end
 
 local M = {}
 
-local redirect = true
+local enable = true
 
 local function attach()
-  if not redirect then
+  if not enable then
     return
   end
   api.nvim__redraw({flush = true})
@@ -123,14 +123,14 @@ local function attach()
   api.nvim__redraw({flush = true})
 end
 
-api.nvim_create_user_command('MsgRedirToggle', function ()
-  redirect = not redirect
-  if not redirect then
+api.nvim_create_user_command('MsgShowToggle', function ()
+  enable = not enable
+  if not enable then
     detach()
   end
 end, {nargs = 0})
 
-api.nvim_create_user_command('MsgRedirToggleDebugUIEvents', function ()
+api.nvim_create_user_command('MsgShowToggleDebugUIEvents', function ()
   showDebugMsgs = not showDebugMsgs
 end, {nargs = 0})
 
