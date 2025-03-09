@@ -178,7 +178,7 @@ local settings = {
       relativenumber = false,
       statuscolumn = '',
     },
-    after = vim.schedule_wrap(function (winId, opts)
+    after = function (winId, opts)
       api.nvim_win_set_cursor(winId, {1, opts.cursorPos or 0})
       hide(winId, false)
       api.nvim__redraw({
@@ -186,7 +186,7 @@ local settings = {
         cursor = true,
         win = winId,
       })
-    end)
+    end
   },
 }
 
