@@ -330,22 +330,15 @@ function M.setup(opts)
   --- @type notifier.opts
   realOpts = vim.tbl_extend('keep', opts or {}, defaultOpts)
 
-  if realOpts.debug then
-    debugBuf = api.nvim_create_buf(false, true)
-  end
-
-  if realOpts.notify then
-    msgBuf = api.nvim_create_buf(false, true)
-  end
-
+  debugBuf = api.nvim_create_buf(false, true)
+  msgBuf = api.nvim_create_buf(false, true)
   dialogBuf = api.nvim_create_buf(false, true)
+  historyBuf = api.nvim_create_buf(false, true)
+  -- vim.bo[historyBuf].modifiable = false
 
   if realOpts.lspProgress then
     vim.lsp.handlers['$/progress'] = lspProgressHandler
   end
-
-  historyBuf = api.nvim_create_buf(false, true)
-  -- vim.bo[historyBuf].modifiable = false
 
   local augroup = api.nvim_create_augroup('arctgx.msg', {clear = true})
   api.nvim_create_autocmd({'TabEnter', 'VimResized'}, {group = augroup, callback = refresh})
