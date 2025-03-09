@@ -1,5 +1,5 @@
 local api = vim.api
-local ns = api.nvim_create_namespace('messageRedirection')
+local ns = api.nvim_create_namespace('arctgx.msg-show')
 local notifier = require('msg-show.notifier')
 local cmdline = require('msg-show.cmdline')
 
