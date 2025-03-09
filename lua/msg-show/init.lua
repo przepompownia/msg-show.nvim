@@ -4,11 +4,7 @@ local notifier = require('msg-show.notifier')
 local cmdline = require('msg-show.cmdline')
 
 local function detach()
-  api.nvim__redraw({flush = true})
   vim.ui_detach(ns)
-  vim.schedule(function ()
-    api.nvim__redraw({flush = true})
-  end)
 end
 
 local showDebugMsgs = false
@@ -94,9 +90,6 @@ local function handleMessages(kind, content, replace, history)
   end
 
   displayMessage(kind, content, replace, history)
-  vim.schedule(function ()
-    api.nvim__redraw({flush = true})
-  end)
 end
 
 local M = {}
@@ -107,7 +100,6 @@ local function attach()
   if not enable then
     return
   end
-  api.nvim__redraw({flush = true})
   vim.ui_attach(ns, {ext_messages = true, ext_cmdline = true}, function (event, ...)
     if event == 'msg_show' then
       handleMessages(...)
