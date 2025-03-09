@@ -105,6 +105,10 @@ local settings = {
       api.nvim_win_set_config(winId, {
         height = computeWinHeight(winId),
       })
+      api.nvim__redraw({
+        flush = true,
+        win = winId,
+      })
     end,
   },
   history = {
