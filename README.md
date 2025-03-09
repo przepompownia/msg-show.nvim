@@ -26,3 +26,6 @@ vim.keymap.set('n', '<Leader><Leader>', notifier.delayRemoval)
 - allow pause/recreate deletion timers
 ### cmdline
 - multi-chunk content
+- indents
+- highlights
+- `cmdline_block_*`, `cmdline_special_char` events
