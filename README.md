@@ -13,7 +13,7 @@ Using this plugin requires Neovim on current master branch
 local notifier = require('msg-show.notifier')
 notifier.setup({notify = true, debug = true, lspProgress = true, duration = 5000, msgWin = {maxWidth = 130}}) -- defaults
 
-require('msg-show.redir').init()
+require('msg-show').init()
 vim.keymap.set('n', '<Leader>nh', notifier.showHistory)
 vim.keymap.set('n', '<Leader><Leader>', notifier.delayRemoval)
 ```
