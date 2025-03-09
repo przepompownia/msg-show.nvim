@@ -31,6 +31,9 @@ local function jumpToLastLine(win)
 end
 
 local function hide(winId, value)
+  if not winId or false == api.nvim_win_is_valid(winId) then
+    return
+  end
   api.nvim_win_set_config(winId, {hide = value})
 end
 
