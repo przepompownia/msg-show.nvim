@@ -325,7 +325,7 @@ function M.debug(msg)
   end)
 end
 
----@param opts arctgx.msg-show.notifier.opts?
+---@param opts? arctgx.msg-show.notifier.opts
 function M.setup(opts)
   --- @type arctgx.msg-show.notifier.opts
   realOpts = vim.tbl_extend('keep', opts or {}, defaultOpts)

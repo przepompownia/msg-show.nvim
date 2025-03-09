@@ -10,12 +10,10 @@ Using this plugin requires Neovim on current master branch
 
 ## Configuration
 ```lua
-local notifier = require('msg-show.notifier')
-notifier.setup({lspProgress = true, duration = 5000, msgWin = {maxWidth = 130}}) -- defaults
-
-require('msg-show').init()
-vim.keymap.set('n', '<Leader>nh', notifier.showHistory)
-vim.keymap.set('n', '<Leader><Leader>', notifier.delayRemoval)
+local msgShow = require('msg-show')
+msgShow.setup({notifier = {lspProgress = true, duration = 5000, msgWin = {maxWidth = 130}}}) -- defaults
+vim.keymap.set('n', '<Leader>nh', msgShow.history)
+vim.keymap.set('n', '<Leader><Leader>', msgShow.delayRemoval)
 ```
 
 ## Todo

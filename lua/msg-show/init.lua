@@ -128,7 +128,11 @@ api.nvim_create_user_command('MsgShowToggleDebugUIEvents', function ()
   showDebugMsgs = not showDebugMsgs
 end, {nargs = 0})
 
-function M.init()
+--- @alias arctgx.msg-show.opts {notifier: arctgx.msg-show.notifier.opts}
+
+---@param opts? arctgx.msg-show.opts
+function M.setup(opts)
+  notifier.setup(opts and opts.notifier)
   api.nvim_create_autocmd({'UIEnter'}, {
     callback = function ()
       local startMessages = vim.trim(api.nvim_exec2('messages', {output = true}).output)
@@ -138,6 +142,14 @@ function M.init()
       attach()
     end
   })
+end
+
+function M.history()
+  return notifier.showHistory()
+end
+
+function M.delayRemoval()
+  return notifier.delayRemoval()
 end
 
 return M
