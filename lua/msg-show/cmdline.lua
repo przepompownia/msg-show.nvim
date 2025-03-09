@@ -17,6 +17,7 @@ local function show(content, pos, firstc, prompt)
 end
 
 local function hide(_abort)
+  api.nvim_buf_set_lines(cmdbuf, 0, -1, true, {})
   vim.schedule(function ()
     windows.hide(cmdwin, true)
   end)
