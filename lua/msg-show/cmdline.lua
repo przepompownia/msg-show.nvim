@@ -16,9 +16,10 @@ end
 --- @return integer
 local function show(content, pos, firstc, prompt)
   local cmdText = content[1][2] -- todo
-  api.nvim_buf_set_lines(cmdbuf, 0, -1, true, {firstc .. prompt .. cmdText})
-  promptlen = #prompt
-  return refresh(firstc:len() + pos)
+  local mergedPrompt = firstc .. prompt
+  api.nvim_buf_set_lines(cmdbuf, 0, -1, true, {mergedPrompt .. cmdText})
+  promptlen = #mergedPrompt
+  return refresh(pos)
 end
 
 local function hide(_abort)
