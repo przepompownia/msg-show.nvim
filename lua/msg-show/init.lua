@@ -109,7 +109,6 @@ local function attach()
       showCmdline(...)
     end
   end)
-  api.nvim__redraw({flush = true})
 end
 
 api.nvim_create_user_command('MsgShowToggle', function ()
