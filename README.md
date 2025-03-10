@@ -19,7 +19,6 @@ vim.keymap.set('n', '<Leader><Leader>', msgShow.delayRemoval)
 ## Todo
 ### init
 - handle `:messages` and `:message clear`
-- verify which `nvim__redraw` calls with current options can be redundant
 ### notifier
 - allow pause/recreate deletion timers
 ### cmdline
