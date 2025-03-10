@@ -5,6 +5,8 @@ local cmdWinConfig = windows.settings.cmdline
 local cmdwin
 local promptlen = 0 -- like in Nvim #27855 - probably the only way to keep the value across events
 
+vim.treesitter.start(cmdbuf, 'vim')
+
 --- @param pos? integer
 --- @return integer
 local function refresh(pos)
