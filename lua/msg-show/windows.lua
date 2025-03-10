@@ -65,7 +65,7 @@ local settings = {
       end
       api.nvim_win_set_config(winId, {
         relative = 'editor',
-        row = vim.go.lines - 1,
+        row = vim.go.lines - 1 - vim.o.cmdheight,
         col = vim.o.columns,
         width = width,
       })
@@ -171,23 +171,27 @@ local settings = {
   },
   cmdline = {
     config = {
+      focusable = false,
       relative = 'editor',
       row = vim.o.lines - 1,
       col = 0,
       anchor = 'SW',
       height = 1,
-      width = vim.o.columns - 1,
+      width = vim.o.columns,
+      noautocmd = true,
+      style = 'minimal',
     },
     options = {
       eventignorewin = 'all',
       virtualedit = 'onemore',
-      number = false,
-      relativenumber = false,
-      statuscolumn = '',
     },
     after = function (winId, opts)
+      local height = api.nvim_win_text_height(winId, {}).all
       api.nvim_win_set_cursor(winId, {1, opts.cursorPos or 0})
-      hide(winId, false)
+      api.nvim_win_set_config(winId, {
+        height = height,
+        hide = false,
+      })
       api.nvim__redraw({
         flush = true,
         cursor = true,
