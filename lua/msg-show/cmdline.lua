@@ -6,20 +6,25 @@ local cmdwin
 local promptlen = 0 -- like in Nvim #27855 - probably the only way to keep the value across events
 
 --- @param pos? integer
+--- @return integer
 local function refresh(pos)
   cmdwin = windows.open(cmdbuf, cmdwin, cmdWinConfig, {cursorPos = promptlen + (pos or 0)})
+
+  return cmdwin
 end
 
+--- @return integer
 local function show(content, pos, firstc, prompt)
   local cmdText = content[1][2] -- todo
   api.nvim_buf_set_lines(cmdbuf, 0, -1, true, {firstc .. prompt .. cmdText})
   promptlen = #prompt
-  refresh(firstc:len() + pos)
+  return refresh(firstc:len() + pos)
 end
 
 local function hide(_abort)
   api.nvim_buf_set_lines(cmdbuf, 0, -1, true, {})
   windows.hide(cmdwin, true)
+  return cmdwin
 end
 
 local augroup = api.nvim_create_augroup('arctgx.cmdline', {clear = true})

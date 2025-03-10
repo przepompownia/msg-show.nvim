@@ -220,6 +220,7 @@ end
 --- @param winId integer
 --- @param winConfig window
 --- @param opts table?
+--- @return integer
 local function open(buf, winId, winConfig, opts)
   if not winId or not api.nvim_win_is_valid(winId) then
     winId = api.nvim_open_win(buf, false, winConfig.config)

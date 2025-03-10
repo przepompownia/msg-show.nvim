@@ -35,7 +35,7 @@ local function jumpToCmdlinePos(pos, _level)
     notifier.debug(('Pos: %s'):format(pos))
   end
 
-  cmdline.refresh(pos)
+  return cmdline.refresh(pos)
 end
 
 local function showCmdline(content, pos, firstc, prompt, indent, level, hlId)
@@ -53,7 +53,7 @@ local function showCmdline(content, pos, firstc, prompt, indent, level, hlId)
     notifier.debug(dm)
   end
 
-  cmdline.show(content, pos, firstc, prompt)
+  return cmdline.show(content, pos, firstc, prompt)
 end
 
 local function handleMessages(kind, content, replace, history)
@@ -97,9 +97,6 @@ local M = {}
 local enable = true
 
 local function attach()
-  if not enable then
-    return
-  end
   vim.ui_attach(ns, {ext_messages = true, ext_cmdline = true}, function (event, ...)
     if event == 'msg_show' then
       handleMessages(...)
