@@ -25,4 +25,4 @@ vim.keymap.set('n', '<Leader><Leader>', msgShow.delayRemoval)
 - highlights
 - `more` if needed
 - `cmdline_block_*`, `cmdline_special_char` events
-- wildmenu does not work
+- wildmenu - depends on https://github.com/neovim/neovim/pull/31269
