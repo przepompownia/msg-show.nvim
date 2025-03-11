@@ -20,7 +20,7 @@ vim.keymap.set('n', '<Leader><Leader>', msgShow.delayRemoval)
 ### init
 - handle `:messages` and `:message clear`
 ### cmdline
-- multi-chunk highlight
+- multi-chunk highlight (see `:h E5406`)
 - levels
 - highlights
 - `more` if needed
