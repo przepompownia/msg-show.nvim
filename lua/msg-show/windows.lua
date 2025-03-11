@@ -171,9 +171,10 @@ local settings = {
   },
   cmdline = {
     config = {
+      zindex = 201,
       focusable = false,
       relative = 'editor',
-      row = vim.o.lines - 1,
+      row = vim.o.lines,
       col = 0,
       anchor = 'SW',
       height = 1,
@@ -192,6 +193,9 @@ local settings = {
         height = height,
         hide = false,
       })
+      vim._with({noautocmd = true}, function ()
+        vim.o.cmdheight = api.nvim_win_text_height(winId, {}).all
+      end)
       api.nvim__redraw({
         flush = true,
         cursor = true,

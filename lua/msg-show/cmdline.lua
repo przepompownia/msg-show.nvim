@@ -4,6 +4,7 @@ local windows = require('msg-show.windows')
 local cmdWinConfig = windows.settings.cmdline
 local cmdwin
 local promptlen = 0 -- like in Nvim #27855 - probably the only way to keep the value across events
+local savedCmdHeight = 0
 
 vim.treesitter.start(cmdbuf, 'vim')
 
@@ -25,6 +26,9 @@ local function show(content, pos, firstc, prompt)
 end
 
 local function hide(_abort)
+  vim._with({noautocmd = true}, function ()
+    vim.o.cmdheight = savedCmdHeight
+  end)
   api.nvim_buf_set_lines(cmdbuf, 0, -1, true, {})
   windows.hide(cmdwin, true)
   return cmdwin
