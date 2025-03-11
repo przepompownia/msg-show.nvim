@@ -53,7 +53,7 @@ local function showCmdline(content, pos, firstc, prompt, indent, level, hlId)
     notifier.debug(dm)
   end
 
-  return cmdline.show(content, pos, firstc, prompt)
+  return cmdline.show(content, pos, firstc, prompt, indent, level)
 end
 
 local function handleMessages(kind, content, replace, history)

@@ -17,9 +17,9 @@ local function refresh(pos)
 end
 
 --- @return integer
-local function show(content, pos, firstc, prompt)
+local function show(content, pos, firstc, prompt, indent, _level)
   local cmdText = content[1][2] -- todo
-  local mergedPrompt = firstc .. prompt
+  local mergedPrompt = firstc .. prompt .. (' '):rep(indent or 0)
   api.nvim_buf_set_lines(cmdbuf, 0, -1, true, {mergedPrompt .. cmdText})
   promptlen = #mergedPrompt
   return refresh(pos)

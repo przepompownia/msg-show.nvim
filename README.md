@@ -21,7 +21,7 @@ vim.keymap.set('n', '<Leader><Leader>', msgShow.delayRemoval)
 - handle `:messages` and `:message clear`
 ### cmdline
 - multi-chunk content
-- indents
+- levels
 - highlights
 - `more` if needed
 - `cmdline_block_*`, `cmdline_special_char` events
