@@ -22,7 +22,7 @@ local function show(content, pos, firstc, prompt, indent, _level)
   for _, chunkText in ipairs(content) do
     cmdText = cmdText .. chunkText[2]
   end
-  local mergedPrompt = firstc .. prompt .. (' '):rep(indent or 0)
+  local mergedPrompt = firstc .. prompt .. (' '):rep(indent)
   api.nvim_buf_set_lines(cmdbuf, 0, -1, true, {mergedPrompt .. cmdText})
   promptlen = #mergedPrompt
   return refresh(pos)
