@@ -8,24 +8,35 @@ local savedCmdHeight = 0
 
 vim.treesitter.start(cmdbuf, 'vim')
 
---- @param pos? integer
+--- @param col? integer
 --- @return integer
-local function refresh(pos)
-  cmdwin = windows.open(cmdbuf, cmdwin, cmdWinConfig, {cursorPos = promptlen + (pos or 0)})
+local function refresh(row, col)
+  cmdwin = windows.open(cmdbuf, cmdwin, cmdWinConfig, {cursorRow = row, cursorCol = promptlen + (col or 0)})
 
   return cmdwin
 end
 
+local function updateCmdBuffer(linesData, prompt, startRow, endRow)
+  local lines = {}
+  local cmdText = ''
+  for _, lineData in ipairs(linesData) do
+    cmdText = ''
+    for _, chunkText in ipairs(lineData) do
+      cmdText = cmdText .. chunkText[2]
+    end
+    lines[#lines + 1] = prompt .. cmdText
+  end
+  api.nvim_buf_set_lines(cmdbuf, startRow, endRow, true, lines)
+
+  return #lines
+end
+
 --- @return integer
 local function show(content, pos, firstc, prompt, indent, _level)
-  local cmdText = ''
-  for _, chunkText in ipairs(content) do
-    cmdText = cmdText .. chunkText[2]
-  end
   local mergedPrompt = firstc .. prompt .. (' '):rep(indent)
-  api.nvim_buf_set_lines(cmdbuf, 0, -1, true, {mergedPrompt .. cmdText})
   promptlen = #mergedPrompt
-  return refresh(pos)
+  local linenr = updateCmdBuffer({content}, mergedPrompt, -2, -1)
+  return refresh(linenr, pos)
 end
 
 local function hide(_abort)
@@ -35,6 +46,20 @@ local function hide(_abort)
   api.nvim_buf_set_lines(cmdbuf, 0, -1, true, {})
   windows.hide(cmdwin, true)
   return cmdwin
+end
+
+local function blockShow(linesData)
+  local linenr = updateCmdBuffer(linesData, '>', -2, -2)
+  refresh(linenr)
+end
+
+local function blockAppend(lineData)
+  local linenr = updateCmdBuffer({lineData}, '>', -2, -1)
+  refresh(linenr)
+end
+
+local function blockHide()
+  hide()
 end
 
 local augroup = api.nvim_create_augroup('arctgx.cmdline', {clear = true})
@@ -50,4 +75,7 @@ return {
   hide = hide,
   show = show,
   refresh = refresh,
+  blockShow = blockShow,
+  blockAppend = blockAppend,
+  blockHide = blockHide,
 }

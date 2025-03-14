@@ -82,7 +82,7 @@ local settings = {
       row = vim.go.lines - 3,
       anchor = 'SW',
       col = 0,
-      border = 'single',
+      -- border = 'single',
       style = 'minimal',
       focusable = false,
       zindex = 999,
@@ -181,14 +181,14 @@ local settings = {
       width = vim.o.columns,
       noautocmd = true,
       style = 'minimal',
+      _cmdline_offset = 0,
     },
     options = {
       eventignorewin = 'all',
       virtualedit = 'onemore',
     },
     after = function (winId, opts)
-      local height = api.nvim_win_text_height(winId, {}).all
-      api.nvim_win_set_cursor(winId, {1, opts.cursorPos or 0})
+      api.nvim_win_set_cursor(winId, {opts.cursorRow or 1, opts.cursorCol or 0})
       api.nvim_win_set_config(winId, {
         height = height,
         hide = false,

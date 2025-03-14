@@ -107,6 +107,12 @@ local function attach()
       jumpToCmdlinePos(...)
     elseif event == 'cmdline_show' then
       showCmdline(...)
+    elseif event == 'cmdline_block_show' then
+      cmdline.blockShow(...)
+    elseif event == 'cmdline_block_append' then
+      cmdline.blockAppend(...)
+    elseif event == 'cmdline_block_hide' then
+      cmdline.blockHide()
     end
   end)
 end
