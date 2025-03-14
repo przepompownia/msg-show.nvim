@@ -82,7 +82,6 @@ local settings = {
       row = vim.go.lines - 3,
       anchor = 'SW',
       col = 0,
-      -- border = 'single',
       style = 'minimal',
       focusable = false,
       zindex = 999,

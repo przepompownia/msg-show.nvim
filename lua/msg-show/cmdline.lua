@@ -1,7 +1,9 @@
 local api = vim.api
 local cmdbuf = api.nvim_create_buf(false, true)
 local windows = require('msg-show.windows')
+local notifier = require('msg-show.notifier')
 local cmdWinConfig = windows.settings.cmdline
+local showDebugMsgs = false
 local cmdwin
 local promptlen = 0 -- like in Nvim #27855 - probably the only way to keep the value across events
 local savedCmdHeight = 0
@@ -11,6 +13,10 @@ vim.treesitter.start(cmdbuf, 'vim')
 --- @param col? integer
 --- @return integer
 local function refresh(row, col)
+  if showDebugMsgs then
+    notifier.debug(('Row: %s, Col: %s'):format(row, col))
+  end
+
   cmdwin = windows.open(cmdbuf, cmdwin, cmdWinConfig, {cursorRow = row, cursorCol = promptlen + (col or 0)})
 
   return cmdwin
@@ -32,7 +38,20 @@ local function updateCmdBuffer(linesData, prompt, startRow, endRow)
 end
 
 --- @return integer
-local function show(content, pos, firstc, prompt, indent, _level)
+local function show(content, pos, firstc, prompt, indent, level)
+  if showDebugMsgs then
+    local dm = ('Cmd: f: %s, pos: %s, ﬁ: %s, pr: %s, i: %s, l: %s, hl: %s, c: %s'):format(
+      vim.in_fast_event() and 1 or 0,
+      pos,
+      firstc,
+      vim.inspect(prompt),
+      indent,
+      level,
+      hlId,
+      vim.inspect(content)
+    )
+    notifier.debug(dm)
+  end
   local mergedPrompt = firstc .. prompt .. (' '):rep(indent)
   promptlen = #mergedPrompt
   local linenr = updateCmdBuffer({content}, mergedPrompt, -2, -1)
@@ -71,6 +90,10 @@ api.nvim_create_autocmd({'TabLeave', 'TabClosed'}, {group = augroup, callback = 
   cmdwin = nil
 end})
 
+local function toggleDebugEvents(enable)
+  showDebugMsgs = enable
+end
+
 return {
   hide = hide,
   show = show,
@@ -78,4 +101,8 @@ return {
   blockShow = blockShow,
   blockAppend = blockAppend,
   blockHide = blockHide,
+  pos = function (pos)
+    refresh(pos)
+  end,
+  toggleDebugEvents = toggleDebugEvents,
 }
