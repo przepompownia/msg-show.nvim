@@ -290,8 +290,8 @@ function M.remove(id)
   refresh()
 end
 
-local function displayDebugMessages(msg)
-  api.nvim_buf_set_lines(debugBuf, -1, -1, true, vim.split(vim.inspect(msg), '\n'))
+local function displayDebugMessages(msg, label)
+  api.nvim_buf_set_lines(debugBuf, -1, -1, true, vim.split(('%s: %s'):format(label, vim.inspect(msg)), '\n'))
   debugWin = windows.open(debugBuf, debugWin, debugWinConfig)
 end
 
@@ -331,7 +331,7 @@ end
 
 function M.msgShow(kind, content, replace, history)
   if showDebugMsgs then
-    local dm = ('Msg: f: %s, k: %s, r: %s, h: %s, c: %s'):format(
+    local dm = ('f: %s, k: %s, r: %s, h: %s, c: %s'):format(
       vim.in_fast_event() and 1 or 0,
       vim.inspect(kind),
       replace,
@@ -339,7 +339,7 @@ function M.msgShow(kind, content, replace, history)
       vim.inspect(content)
     )
     if dm ~= previousDebugMessage then
-      M.debug(dm)
+      M.debug(dm, 'MS')
       previousDebugMessage = dm
     end
   end
@@ -377,9 +377,9 @@ local function lspProgressHandler(err, result, ctx, config)
   prog[progId] = displayProgMsg(ctx.client_id, progId, result.value)
 end
 
-function M.debug(msg)
+function M.debug(msg, label)
   inFastEventWrapper(function ()
-    displayDebugMessages(msg)
+    displayDebugMessages(msg, label)
   end)
 end
 

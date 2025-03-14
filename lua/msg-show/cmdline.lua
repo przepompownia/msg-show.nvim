@@ -12,12 +12,12 @@ vim.treesitter.start(cmdbuf, 'vim')
 
 --- @param pos? integer
 --- @return integer
-local function refresh(pos)
+local function refresh(col)
   if showDebugMsgs then
-    notifier.debug(('Pos: %s'):format(pos))
+    notifier.debug(('%s'):format(col), 'CP')
   end
 
-  cmdwin = windows.open(cmdbuf, cmdwin, cmdWinConfig, {cursorPos = promptlen + (pos or 0)})
+  cmdwin = windows.open(cmdbuf, cmdwin, cmdWinConfig, {cursorPos = promptlen + (col or 0)})
 
   return cmdwin
 end
@@ -25,17 +25,8 @@ end
 --- @return integer
 local function show(content, pos, firstc, prompt, indent, level)
   if showDebugMsgs then
-    local dm = ('Cmd: f: %s, pos: %s, ﬁ: %s, pr: %s, i: %s, l: %s, hl: %s, c: %s'):format(
-      vim.in_fast_event() and 1 or 0,
-      pos,
-      firstc,
-      vim.inspect(prompt),
-      indent,
-      level,
-      hlId,
-      vim.inspect(content)
-    )
-    notifier.debug(dm)
+    local fmt = 'pos: %s, ﬁ: %s, pr: %s, i: %s, l: %s, c: %s'
+    notifier.debug((fmt):format(pos, firstc, vim.inspect(prompt), indent, level, vim.inspect(content)), 'CS')
   end
 
   local cmdText = ''
