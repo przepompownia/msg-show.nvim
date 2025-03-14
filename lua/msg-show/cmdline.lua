@@ -14,7 +14,7 @@ vim.treesitter.start(cmdbuf, 'vim')
 --- @return integer
 local function refresh(row, col)
   if showDebugMsgs then
-    notifier.debug(('%s, %s'):format(row, col), 'CP')
+    notifier.debug(('%s, %s'):format(row, col or '-'), 'CP')
   end
 
   cmdwin = windows.open(cmdbuf, cmdwin, cmdWinConfig, {cursorRow = row, cursorCol = promptlen + (col or 0)})
@@ -80,7 +80,7 @@ end
 
 local augroup = api.nvim_create_augroup('arctgx.cmdline', {clear = true})
 api.nvim_create_autocmd({'VimResized'}, {group = augroup, callback = function ()
-  refresh()
+  refresh(1, 0)
 end})
 api.nvim_create_autocmd({'TabLeave', 'TabClosed'}, {group = augroup, callback = function ()
   windows.close(cmdwin)
@@ -99,7 +99,7 @@ return {
   blockAppend = blockAppend,
   blockHide = blockHide,
   pos = function (pos)
-    refresh(pos)
+    refresh(1, pos)
   end,
   toggleDebugEvents = toggleDebugEvents,
 }
