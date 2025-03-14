@@ -10,7 +10,7 @@ local savedCmdHeight = 0
 
 vim.treesitter.start(cmdbuf, 'vim')
 
---- @param pos? integer
+--- @param col? integer
 --- @return integer
 local function refresh(col)
   if showDebugMsgs then
