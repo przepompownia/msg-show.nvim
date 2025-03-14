@@ -331,7 +331,7 @@ end
 
 function M.msgShow(kind, content, replace, history)
   if showDebugMsgs then
-    local dm = ('Msg: f: %s, k: %s, r: %s, h: %s, c: %s'):format(
+    local dm = ('f: %s, k: %s, r: %s, h: %s, c: %s'):format(
       vim.in_fast_event() and 1 or 0,
       vim.inspect(kind),
       replace,
