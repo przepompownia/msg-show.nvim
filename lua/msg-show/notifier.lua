@@ -411,6 +411,13 @@ function M.setup(opts)
   })
 end
 
+function M.displayInitMessages()
+  local startMessages = vim.trim(api.nvim_exec2('messages', {output = true}).output)
+  if #startMessages > 0 then
+    displayMessage('echo', {{0, startMessages, 0}})
+  end
+end
+
 function M.toggleDebugEvents(enable)
   showDebugMsgs = enable
 end
