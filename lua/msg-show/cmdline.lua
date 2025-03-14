@@ -14,7 +14,7 @@ vim.treesitter.start(cmdbuf, 'vim')
 --- @return integer
 local function refresh(row, col)
   if showDebugMsgs then
-    notifier.debug(('Row: %s, Col: %s'):format(row, col))
+    notifier.debug(('%s, %s'):format(row, col), 'CP')
   end
 
   cmdwin = windows.open(cmdbuf, cmdwin, cmdWinConfig, {cursorRow = row, cursorCol = promptlen + (col or 0)})
@@ -40,17 +40,8 @@ end
 --- @return integer
 local function show(content, pos, firstc, prompt, indent, level)
   if showDebugMsgs then
-    local dm = ('Cmd: f: %s, pos: %s, ﬁ: %s, pr: %s, i: %s, l: %s, hl: %s, c: %s'):format(
-      vim.in_fast_event() and 1 or 0,
-      pos,
-      firstc,
-      vim.inspect(prompt),
-      indent,
-      level,
-      hlId,
-      vim.inspect(content)
-    )
-    notifier.debug(dm)
+    local fmt = 'pos: %s, ﬁ: %s, pr: %s, i: %s, l: %s, c: %s'
+    notifier.debug((fmt):format(pos, firstc, vim.inspect(prompt), indent, level, vim.inspect(content)), 'CS')
   end
   local mergedPrompt = firstc .. prompt .. (' '):rep(indent)
   promptlen = #mergedPrompt
@@ -68,11 +59,17 @@ local function hide(_abort)
 end
 
 local function blockShow(linesData)
+  if showDebugMsgs then
+    notifier.debug(linesData, 'BS')
+  end
   local linenr = updateCmdBuffer(linesData, '>', -2, -2)
   refresh(linenr)
 end
 
 local function blockAppend(lineData)
+  if showDebugMsgs then
+    notifier.debug(lineData, 'BA')
+  end
   local linenr = updateCmdBuffer({lineData}, '>', -2, -1)
   refresh(linenr)
 end
