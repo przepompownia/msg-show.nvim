@@ -149,7 +149,7 @@ local settings = {
       anchor = 'NE',
       border = 'rounded',
       title_pos = 'center',
-      title = ' unhandled messages ',
+      title = ' Debug messages ',
       hide = true,
       style = 'minimal',
     },
