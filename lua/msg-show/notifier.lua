@@ -2,6 +2,16 @@ local api = vim.api
 local ns = api.nvim_create_namespace('arctgx.message')
 local windows = require('msg-show.windows')
 local defaultHl = windows.defaultHl
+local showDebugMsgs = false
+local previousDebugMessage = ''
+
+--- @type table<string, false|integer>
+local replaceableMsgIds = {
+  search_count = false,
+  bufwrite = false,
+  undo = false,
+  completion = false,
+}
 
 --- @alias arctgx.message {type: 'ui'|'notification', msg: table<integer, string, integer>[], priority: integer, created: integer, removed: boolean}
 
@@ -307,6 +317,54 @@ local function displayProgMsg(clientId, progId, report)
   return not isEnd and progData or nil
 end
 
+local function displayMessage(kind, content, replace, history)
+  local rmsgId = replaceableMsgIds[kind]
+  if nil == rmsgId then
+    M.addUiMessage(content, kind, history)
+    return
+  end
+
+  replaceableMsgIds[kind] = (replace and rmsgId)
+    and M.updateUiMessage(rmsgId, content, kind, history)
+    or M.addUiMessage(content, kind, history)
+end
+
+function M.msgShow(kind, content, replace, history)
+  if showDebugMsgs then
+    local dm = ('Msg: f: %s, k: %s, r: %s, h: %s, c: %s'):format(
+      vim.in_fast_event() and 1 or 0,
+      vim.inspect(kind),
+      replace,
+      history,
+      vim.inspect(content)
+    )
+    if dm ~= previousDebugMessage then
+      M.debug(dm)
+      previousDebugMessage = dm
+    end
+  end
+
+  if kind == 'confirm' then
+    M.showDialogMessage(content)
+    return
+  end
+
+  if kind == 'search_cmd' then
+    return
+  end
+
+  if kind == '' and #content == 1 and content[1][2] == '\n' then
+    return
+  end
+
+  if kind == 'return_prompt' then
+    api.nvim_input('\r')
+    return
+  end
+
+  displayMessage(kind, content, replace, history)
+end
+
 local function lspProgressHandler(err, result, ctx, config)
   nvimBuiltinProgressHandler(err, result, ctx, config)
 
@@ -351,6 +409,10 @@ function M.setup(opts)
     pattern = 'verbose',
     callback = function () verbosity = vim.v.option_new end,
   })
+end
+
+function M.toggleDebugEvents(enable)
+  showDebugMsgs = enable
 end
 
 return M
