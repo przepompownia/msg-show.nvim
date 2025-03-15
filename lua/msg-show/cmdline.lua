@@ -1,6 +1,5 @@
 local api = vim.api
 local cmdbuf = api.nvim_create_buf(false, true)
--- local cmdbuf = 1
 local windows = require('msg-show.windows')
 local notifier = require('msg-show.notifier')
 local cmdWinConfig = windows.settings.cmdline
@@ -11,13 +10,22 @@ local savedCmdHeight = nil
 
 vim.treesitter.start(cmdbuf, 'vim')
 
+local function saveCmdHeight()
+  if nil == savedCmdHeight then
+    savedCmdHeight = vim.o.cmdheight
+  end
+end
+
+local function restoreCmdHeight()
+  vim._with({noautocmd = true}, function ()
+    vim.o.cmdheight = savedCmdHeight
+    savedCmdHeight = nil
+  end)
+end
+
 --- @param col? integer
 --- @return integer
 local function refresh(row, col)
-  -- if showDebugMsgs then
-  --   notifier.debug(('%s, %s'):format(row, col or '-'), 'CP')
-  -- end
-
   cmdwin = windows.open(cmdbuf, cmdwin, cmdWinConfig, {
     cursorRow = row,
     cursorCol = promptlen + (col or 0),
@@ -37,10 +45,10 @@ local function updateCmdBuffer(linesData, prompt, startRow, endRow)
     end
     lines[#lines + 1] = prompt .. cmdText
   end
-  notifier.debug(lines, ('LI: %s, %s'):format(startRow, endRow))
   api.nvim_buf_set_lines(cmdbuf, startRow, endRow, true, lines)
 
-  return #api.nvim_buf_get_lines(cmdbuf, 0, -1, false)
+  local linenr = #api.nvim_buf_get_lines(cmdbuf, 0, -1, false)
+  return linenr
 end
 
 --- @return integer
@@ -49,9 +57,7 @@ local function show(content, pos, firstc, prompt, indent, level)
     local fmt = 'pos: %s, ﬁ: %s, pr: %s, i: %s, l: %s, c: %s'
     notifier.debug((fmt):format(pos, firstc, vim.inspect(prompt), indent, level, vim.inspect(content)), 'CS')
   end
-  if nil == savedCmdHeight then
-    savedCmdHeight = vim.o.cmdheight
-  end
+  saveCmdHeight()
   local mergedPrompt = firstc .. prompt .. (' '):rep(indent)
   promptlen = #mergedPrompt
   local linenr = updateCmdBuffer({content}, mergedPrompt, -2, -1)
@@ -59,11 +65,8 @@ local function show(content, pos, firstc, prompt, indent, level)
 end
 
 local function hide(_abort)
-  vim._with({noautocmd = true}, function ()
-    vim.o.cmdheight = savedCmdHeight
-    savedCmdHeight = nil
-  end)
-  api.nvim_buf_set_lines(cmdbuf, 0, -1, true, {})
+  restoreCmdHeight()
+  updateCmdBuffer({{{0, ''}}}, '', -2, -1)
   windows.hide(cmdwin, true)
   return cmdwin
 end
@@ -72,7 +75,8 @@ local function blockShow(linesData)
   if showDebugMsgs then
     notifier.debug(linesData, 'BS')
   end
-  local linenr = updateCmdBuffer(linesData, '>', -2, -2)
+  saveCmdHeight()
+  local linenr = updateCmdBuffer(linesData, ' ', -2, -2)
   refresh(linenr, 0)
 end
 
@@ -80,13 +84,16 @@ local function blockAppend(lineData)
   if showDebugMsgs then
     notifier.debug(lineData, 'BA')
   end
-  local linenr = updateCmdBuffer({lineData}, '>', -2, -2)
-  notifier.debug(linenr, 'LN')
+  saveCmdHeight()
+  local linenr = updateCmdBuffer({lineData}, ' ', -2, -2)
   refresh(linenr, 0)
 end
 
 local function blockHide()
-  hide()
+  restoreCmdHeight()
+  updateCmdBuffer({}, '', 0, -1)
+  windows.hide(cmdwin, true)
+  return cmdwin
 end
 
 local augroup = api.nvim_create_augroup('arctgx.cmdline', {clear = true})
