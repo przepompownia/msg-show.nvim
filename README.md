@@ -20,8 +20,8 @@ vim.keymap.set('n', '<Leader><Leader>', msgShow.delayRemoval)
 ### init
 - handle `:messages` and `:message clear`
 ### cmdline
-- multi-chunk highlight (see `:h E5406`)
+- multi-chunk highlight (see `:h E5406`) (priority over ts?)
+- cmdline_special_char
 - levels
-- highlights
 - `more` if needed
 - wildmenu - depends on https://github.com/neovim/neovim/pull/31269
