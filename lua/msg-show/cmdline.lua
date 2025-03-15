@@ -98,7 +98,9 @@ end
 
 local augroup = api.nvim_create_augroup('arctgx.cmdline', {clear = true})
 api.nvim_create_autocmd({'VimResized'}, {group = augroup, callback = function ()
+  saveCmdHeight()
   refresh(1, 0)
+  restoreCmdHeight()
 end})
 api.nvim_create_autocmd({'TabLeave', 'TabClosed'}, {group = augroup, callback = function ()
   windows.close(cmdwin)
