@@ -1,23 +1,28 @@
 local api = vim.api
 local cmdbuf = api.nvim_create_buf(false, true)
+-- local cmdbuf = 1
 local windows = require('msg-show.windows')
 local notifier = require('msg-show.notifier')
 local cmdWinConfig = windows.settings.cmdline
 local showDebugMsgs = false
 local cmdwin
 local promptlen = 0 -- like in Nvim #27855 - probably the only way to keep the value across events
-local savedCmdHeight = 0
+local savedCmdHeight = nil
 
 vim.treesitter.start(cmdbuf, 'vim')
 
 --- @param col? integer
 --- @return integer
 local function refresh(row, col)
-  if showDebugMsgs then
-    notifier.debug(('%s, %s'):format(row, col or '-'), 'CP')
-  end
+  -- if showDebugMsgs then
+  --   notifier.debug(('%s, %s'):format(row, col or '-'), 'CP')
+  -- end
 
-  cmdwin = windows.open(cmdbuf, cmdwin, cmdWinConfig, {cursorRow = row, cursorCol = promptlen + (col or 0)})
+  cmdwin = windows.open(cmdbuf, cmdwin, cmdWinConfig, {
+    cursorRow = row,
+    cursorCol = promptlen + (col or 0),
+    savedCmdHeight = savedCmdHeight,
+  })
 
   return cmdwin
 end
@@ -32,9 +37,10 @@ local function updateCmdBuffer(linesData, prompt, startRow, endRow)
     end
     lines[#lines + 1] = prompt .. cmdText
   end
+  notifier.debug(lines, ('LI: %s, %s'):format(startRow, endRow))
   api.nvim_buf_set_lines(cmdbuf, startRow, endRow, true, lines)
 
-  return #lines
+  return #api.nvim_buf_get_lines(cmdbuf, 0, -1, false)
 end
 
 --- @return integer
@@ -42,6 +48,9 @@ local function show(content, pos, firstc, prompt, indent, level)
   if showDebugMsgs then
     local fmt = 'pos: %s, ﬁ: %s, pr: %s, i: %s, l: %s, c: %s'
     notifier.debug((fmt):format(pos, firstc, vim.inspect(prompt), indent, level, vim.inspect(content)), 'CS')
+  end
+  if nil == savedCmdHeight then
+    savedCmdHeight = vim.o.cmdheight
   end
   local mergedPrompt = firstc .. prompt .. (' '):rep(indent)
   promptlen = #mergedPrompt
@@ -52,6 +61,7 @@ end
 local function hide(_abort)
   vim._with({noautocmd = true}, function ()
     vim.o.cmdheight = savedCmdHeight
+    savedCmdHeight = nil
   end)
   api.nvim_buf_set_lines(cmdbuf, 0, -1, true, {})
   windows.hide(cmdwin, true)
@@ -63,15 +73,16 @@ local function blockShow(linesData)
     notifier.debug(linesData, 'BS')
   end
   local linenr = updateCmdBuffer(linesData, '>', -2, -2)
-  refresh(linenr)
+  refresh(linenr, 0)
 end
 
 local function blockAppend(lineData)
   if showDebugMsgs then
     notifier.debug(lineData, 'BA')
   end
-  local linenr = updateCmdBuffer({lineData}, '>', -2, -1)
-  refresh(linenr)
+  local linenr = updateCmdBuffer({lineData}, '>', -2, -2)
+  notifier.debug(linenr, 'LN')
+  refresh(linenr, 0)
 end
 
 local function blockHide()
