@@ -187,13 +187,14 @@ local settings = {
       virtualedit = 'onemore',
     },
     after = function (winId, opts)
+      local height = math.max(api.nvim_win_text_height(winId, {}).all, opts.savedCmdHeight)
       api.nvim_win_set_cursor(winId, {opts.cursorRow or 1, opts.cursorCol or 0})
       api.nvim_win_set_config(winId, {
         height = height,
         hide = false,
       })
       vim._with({noautocmd = true}, function ()
-        vim.o.cmdheight = api.nvim_win_text_height(winId, {}).all
+        vim.o.cmdheight = height
       end)
       api.nvim__redraw({
         flush = true,
