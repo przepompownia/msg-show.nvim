@@ -7,24 +7,36 @@ local enable = true
 
 local M = {}
 
+local function attachCb(event, ...)
+  if event == 'msg_show' then
+    notifier.msgShow(...)
+  elseif event == 'cmdline_hide' then
+    cmdline.hide()
+    notifier.showDialogMessage()
+  elseif event == 'cmdline_pos' then
+    cmdline.pos(...)
+  elseif event == 'cmdline_show' then
+    cmdline.show(...)
+  elseif event == 'cmdline_block_show' then
+    cmdline.blockShow(...)
+  elseif event == 'cmdline_block_append' then
+    cmdline.blockAppend(...)
+  elseif event == 'cmdline_block_hide' then
+    cmdline.blockHide()
+  end
+end
+
+local function reportError(err)
+  notifier.debug(debug.traceback(err), 'AT')
+end
+
 local function attach()
   vim.ui_attach(ns, {ext_messages = true, ext_cmdline = true}, function (event, ...)
-    if event == 'msg_show' then
-      notifier.msgShow(...)
-    elseif event == 'cmdline_hide' then
-      cmdline.hide()
-      notifier.showDialogMessage()
-    elseif event == 'cmdline_pos' then
-      cmdline.pos(...)
-    elseif event == 'cmdline_show' then
-      cmdline.show(...)
-    elseif event == 'cmdline_block_show' then
-      cmdline.blockShow(...)
-    elseif event == 'cmdline_block_append' then
-      cmdline.blockAppend(...)
-    elseif event == 'cmdline_block_hide' then
-      cmdline.blockHide()
+    if showDebugMsgs then
+      xpcall(attachCb, reportError, event, ...)
+      return
     end
+    attachCb(event, ...)
   end)
 end
 
