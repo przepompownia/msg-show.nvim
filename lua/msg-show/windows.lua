@@ -191,16 +191,22 @@ local settings = {
       api.nvim_win_set_cursor(winId, {opts.cursorRow or 1, opts.cursorCol or 0})
       api.nvim_win_set_config(winId, {
         height = height,
-        hide = false,
+        hide = opts.hide or false,
+        relative = 'editor',
+        row = vim.o.lines,
+        col = 0,
+        anchor = 'SW',
       })
-      vim._with({noautocmd = true}, function ()
-        vim.o.cmdheight = height
-      end)
-      api.nvim__redraw({
-        flush = true,
-        cursor = true,
-        win = winId,
-      })
+      if not opts.hide then
+        vim._with({noautocmd = true}, function ()
+          vim.o.cmdheight = height
+        end)
+        api.nvim__redraw({
+          flush = true,
+          cursor = true,
+          win = winId,
+        })
+      end
     end
   },
 }

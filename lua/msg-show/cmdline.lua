@@ -24,12 +24,14 @@ local function restoreCmdHeight()
 end
 
 --- @param col? integer
+--- @param hide? boolean
 --- @return integer
-local function refresh(row, col)
+local function refresh(row, col, hide)
   cmdwin = windows.open(cmdbuf, cmdwin, cmdWinConfig, {
     cursorRow = row,
     cursorCol = promptlen + (col or 0),
     savedCmdHeight = savedCmdHeight,
+    hide = hide,
   })
 
   return cmdwin
@@ -99,7 +101,7 @@ end
 local augroup = api.nvim_create_augroup('arctgx.cmdline', {clear = true})
 api.nvim_create_autocmd({'VimResized'}, {group = augroup, callback = function ()
   saveCmdHeight()
-  refresh(1, 0)
+  refresh(1, 0, true)
   restoreCmdHeight()
 end})
 api.nvim_create_autocmd({'TabLeave', 'TabClosed'}, {group = augroup, callback = function ()
