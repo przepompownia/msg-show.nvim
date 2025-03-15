@@ -180,7 +180,7 @@ local settings = {
       width = vim.o.columns,
       noautocmd = true,
       style = 'minimal',
-      _cmdline_offset = 0,
+      -- _cmdline_offset = 0,
     },
     options = {
       eventignorewin = 'all',
