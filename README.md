@@ -24,5 +24,4 @@ vim.keymap.set('n', '<Leader><Leader>', msgShow.delayRemoval)
 - levels
 - highlights
 - `more` if needed
-- `cmdline_block_*`, `cmdline_special_char` events
 - wildmenu - depends on https://github.com/neovim/neovim/pull/31269
