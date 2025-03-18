@@ -51,6 +51,7 @@ local settings = {
       focusable = false,
       zindex = 998,
       noautocmd = true,
+      border = 'none',
     },
     options = {
       winblend = 25,
@@ -178,6 +179,7 @@ local settings = {
       anchor = 'SW',
       height = 1,
       width = vim.o.columns,
+      border = 'none',
       noautocmd = true,
       style = 'minimal',
       -- _cmdline_offset = 0,
