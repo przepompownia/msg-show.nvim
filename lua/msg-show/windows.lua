@@ -2,15 +2,6 @@ local api = vim.api
 
 --- @alias window {config: vim.api.keyset.win_config, options: vim.wo?, after: fun(winId: integer, opts: table?)?}
 
-local defaultHl = 'Comment'
-
-local msgWinHlMap = {
-  Normal = defaultHl,
-  Search = defaultHl,
-}
-
-local msgWinHl = vim.iter(msgWinHlMap):map(function (k, v) return ('%s:%s'):format(k, v) end):join(',')
-
 local function computeWinHeight(win)
   local stlSpace = (vim.o.laststatus > 0) and 1 or 0 -- for ls=1 and single window it can take unnecessary line
   local tabSpace = (vim.o.showtabline == 2 or (vim.o.showtabline == 1 and #vim.api.nvim_list_tabpages() > 1)) and 1 or 0
@@ -55,7 +46,6 @@ local settings = {
     },
     options = {
       winblend = 25,
-      winhl = msgWinHl,
       wrap = true,
       eventignorewin = 'all',
     },
@@ -240,7 +230,9 @@ end
 local function open(buf, winId, winConfig, opts)
   if not winId or not api.nvim_win_is_valid(winId) then
     winId = api.nvim_open_win(buf, false, winConfig.config)
-
+    if opts and opts.ns then
+      api.nvim_win_set_hl_ns(winId, opts.ns)
+    end
     applyOptions(winId, winConfig.options)
   end
   if type(winConfig.after) == 'function' then
@@ -254,6 +246,5 @@ return {
   hide = hide,
   close = close,
   open = open,
-  defaultHl = defaultHl,
   settings = settings,
 }

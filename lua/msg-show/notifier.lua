@@ -1,9 +1,12 @@
 local api = vim.api
 local ns = api.nvim_create_namespace('arctgx.message')
 local windows = require('msg-show.windows')
-local defaultHl = windows.defaultHl
 local showDebugMsgs = false
 local previousDebugMessage = ''
+local defaultHl = 'Comment'
+
+api.nvim_set_hl(ns, 'Normal', {link = defaultHl})
+api.nvim_set_hl(ns, 'Search', {link = defaultHl})
 
 --- @type table<string, false|integer>
 local replaceableMsgIds = {
@@ -179,7 +182,7 @@ local function displayNotifications(items, buf, win, winConfig)
     return
   end
 
-  return windows.open(buf, win, winConfig, {maxLinesWidth = maxwidth})
+  return windows.open(buf, win, winConfig, {maxLinesWidth = maxwidth, ns = ns})
 end
 
 local function inFastEventWrapper(cb)
