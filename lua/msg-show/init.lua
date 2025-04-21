@@ -31,7 +31,7 @@ local function reportError(err)
 end
 
 local function attach()
-  vim.ui_attach(ns, {ext_messages = true, ext_cmdline = true}, function (event, ...)
+  vim.ui_attach(ns, {ext_messages = true, ext_cmdline = true, set_cmdheight = false}, function (event, ...)
     if showDebugMsgs then
       xpcall(attachCb, reportError, event, ...)
       return
