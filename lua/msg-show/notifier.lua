@@ -173,7 +173,7 @@ end
 
 --- @param items arctgx.message[]
 --- @param buf integer
-local function displayNotifications(items, buf, win, winConfig)
+local function displayNotifications(items, buf, win, winConfig, hlNs)
   local lineNr, maxwidth = loadItemsToBuf(items, buf)
   local height = (lineNr < vim.o.lines - 3) and lineNr or vim.o.lines - 3
 
@@ -182,7 +182,7 @@ local function displayNotifications(items, buf, win, winConfig)
     return
   end
 
-  return windows.open(buf, win, winConfig, {maxLinesWidth = maxwidth, ns = ns})
+  return windows.open(buf, win, winConfig, {maxLinesWidth = maxwidth, ns = hlNs})
 end
 
 local function inFastEventWrapper(cb)
@@ -202,7 +202,7 @@ local function refresh()
     return a.created < b.created
   end)
   inFastEventWrapper(function ()
-    msgWin = displayNotifications(msglist, msgBuf, msgWin, msgWinConfig)
+    msgWin = displayNotifications(msglist, msgBuf, msgWin, msgWinConfig, ns)
   end)
 end
 
