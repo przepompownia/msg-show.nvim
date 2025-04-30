@@ -282,7 +282,7 @@ end
 function M.showHistory()
   inFastEventWrapper(function ()
     loadItemsToBuf(msgHistory, historyBuf)
-    historyWin = windows.open(historyBuf, historyWin, historyWinConfig)
+    historyWin = windows.open(historyBuf, historyWin, historyWinConfig, {focus = true})
   end)
 end
 

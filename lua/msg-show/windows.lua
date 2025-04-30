@@ -229,7 +229,7 @@ end
 --- @return integer
 local function open(buf, winId, winConfig, opts)
   if not winId or not api.nvim_win_is_valid(winId) then
-    winId = api.nvim_open_win(buf, false, winConfig.config)
+    winId = api.nvim_open_win(buf, opts.focus or false, winConfig.config)
     if opts and opts.ns then
       api.nvim_win_set_hl_ns(winId, opts.ns)
     end
