@@ -172,7 +172,7 @@ local settings = {
       border = 'none',
       noautocmd = true,
       style = 'minimal',
-      -- _cmdline_offset = 0,
+      _cmdline_offset = 0,
     },
     options = {
       eventignorewin = 'all',
