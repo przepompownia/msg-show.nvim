@@ -1,7 +1,7 @@
 # msg-show.nvim
 Render UI messages out of the cmdline area (preserving highlights). Handle `ext_emdline` events.
 
-I hope it becomes redundant in favor of a built-in alternative (probably https://github.com/neovim/neovim/pull/27855), but for now I find it useful. Special thanks to @luukvbaal for solving many issues on Nvim side revealed while using this plugin.
+This plugin becomes redundant in favor of the built-in alternative (`see :help vim._extui`), but for now I find it useful. Special thanks to @luukvbaal and the community for solving many issues on Nvim side revealed while using this plugin.
 
 Using this plugin requires Neovim on current master branch
 - it's inspired in some way by https://github.com/echasnovski/mini.notify (at the moment not intended to display UI messages)
@@ -24,4 +24,3 @@ vim.keymap.set('n', '<Leader><Leader>', msgShow.delayRemoval)
 - cmdline_special_char
 - levels
 - `more` if needed
-- wildmenu - depends on https://github.com/neovim/neovim/pull/31269
