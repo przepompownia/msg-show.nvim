@@ -14,6 +14,7 @@ local replaceableMsgIds = {
   bufwrite = false,
   undo = false,
   completion = false,
+  echomsg = false,
 }
 
 --- @alias arctgx.message {type: 'ui'|'notification', msg: table<integer, string, integer>[], priority: integer, created: integer, removed: boolean}
