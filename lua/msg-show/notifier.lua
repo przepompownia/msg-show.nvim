@@ -1,5 +1,5 @@
 local api = vim.api
-local ns = api.nvim_create_namespace('arctgx.message')
+local ns = api.nvim_create_namespace('arctgx.msg-show.message')
 local windows = require('msg-show.windows')
 local showDebugMsgs = false
 local previousDebugMessage = ''

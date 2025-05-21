@@ -1,4 +1,5 @@
 local api = vim.api
+local ns = api.nvim_create_namespace('arctgx.msg-show.cmdline')
 local cmdbuf = api.nvim_create_buf(false, true)
 local windows = require('msg-show.windows')
 local notifier = require('msg-show.notifier')
@@ -7,6 +8,8 @@ local showDebugMsgs = false
 local cmdwin
 local promptlen = 0 -- like in Nvim #27855 - probably the only way to keep the value across events
 local savedCmdHeight = nil
+
+api.nvim_set_hl(ns, 'Search', {link = 'NONE'})
 
 vim.treesitter.start(cmdbuf, 'vim')
 
@@ -32,6 +35,7 @@ local function refresh(row, col, hide)
     cursorCol = promptlen + (col or 0),
     savedCmdHeight = savedCmdHeight,
     hide = hide,
+    ns = ns,
   })
 
   return cmdwin
