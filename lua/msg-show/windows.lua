@@ -44,6 +44,7 @@ local settings = {
       noautocmd = true,
       border = 'none',
     },
+    --- @diagnostic disable-next-line: missing-fields
     options = {
       winblend = 25,
       wrap = true,
@@ -77,6 +78,7 @@ local settings = {
       focusable = false,
       zindex = 999,
     },
+    --- @diagnostic disable-next-line: missing-fields
     options = {
       wrap = true,
       eventignorewin = 'all',
@@ -115,6 +117,7 @@ local settings = {
       title_pos = 'center',
       zindex = 997,
     },
+    --- @diagnostic disable-next-line: missing-fields
     options = {
       winblend = 5,
       scrolloff = 0,
@@ -144,6 +147,7 @@ local settings = {
       hide = true,
       style = 'minimal',
     },
+    --- @diagnostic disable-next-line: missing-fields
     options = {
       number = true,
       eventignorewin = 'all',
@@ -174,6 +178,7 @@ local settings = {
       style = 'minimal',
       _cmdline_offset = 0,
     },
+    --- @diagnostic disable-next-line: missing-fields
     options = {
       eventignorewin = 'all',
       virtualedit = 'onemore',
