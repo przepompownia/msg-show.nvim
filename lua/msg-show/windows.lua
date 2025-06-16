@@ -176,7 +176,7 @@ local settings = {
       border = 'none',
       noautocmd = true,
       style = 'minimal',
-      _cmdline_offset = 0,
+      _cmdline_offset = vim.fn.has('nvim-0.12') == 1 and 0 or nil,
     },
     --- @diagnostic disable-next-line: missing-fields
     options = {
