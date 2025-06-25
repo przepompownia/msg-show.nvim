@@ -361,11 +361,6 @@ function M.msgShow(kind, content, replace, history)
     return
   end
 
-  if kind == 'return_prompt' then
-    api.nvim_input('\r')
-    return
-  end
-
   displayMessage(kind, content, replace, history)
 end
 
