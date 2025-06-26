@@ -63,6 +63,12 @@ local function show(content, pos, firstc, prompt, indent, level)
     local fmt = 'pos: %s, ﬁ: %s, pr: %s, i: %s, l: %s, c: %s'
     notifier.debug((fmt):format(pos, firstc, vim.inspect(prompt), indent, level, vim.inspect(content)), 'CS')
   end
+
+  if prompt == 'Press any key to continue' then
+    api.nvim_input('\r')
+    return 0
+  end
+
   saveCmdHeight()
   local mergedPrompt = firstc .. prompt .. (' '):rep(indent)
   promptlen = #mergedPrompt
