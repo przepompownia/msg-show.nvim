@@ -227,6 +227,9 @@ end
 local previous, previousId, previousDuplicated = nil, nil, 1
 
 function M.addUiMessage(chunkSequence, kind, history)
+  if kind == 'empty' then
+    return
+  end
   if previous == vim.json.encode(chunkSequence) then
     previousDuplicated = previousDuplicated + 1
     chunkSequence[#chunkSequence + 1] = {0, (' (x%d)'):format(previousDuplicated), defaultHl}
@@ -354,10 +357,6 @@ function M.msgShow(kind, content, replace, history)
   end
 
   if kind == 'search_cmd' then
-    return
-  end
-
-  if kind == '' and #content == 1 and content[1][2] == '\n' then
     return
   end
 
